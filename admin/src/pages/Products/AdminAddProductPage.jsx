@@ -1,68 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import AdminSidebar from '../../components/AdminSidebar';
 import AdminTopbar from '../../components/AdminTopbar';
 import adminApi from '../../services/adminApi';
-import { ArrowLeft, Save, Upload, X } from 'lucide-react';
+import { Plus, Trash2, FolderTree, Upload, X } from 'lucide-react';
 
-const AdminAddProductPage = () => {
-  const navigate = useNavigate();
-
+const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const [imagePreview, setImagePreview] = useState('');
 
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '',
-    brand: 'AyurvedaMart',
-    price: '',
-    discountPrice: '',
-    sku: '',
-    stock: '25',
-    weight: '100g',
-    image: '',
-    shortDescription: '',
-    description: '',
-    ingredients: '',
-    benefits: '',
-    usage:
-      'Take as directed on package or consult an Ayurvedic practitioner.',
-    storageInstructions:
-      'Store in a cool, dry place away from direct sunlight.',
-    featured: false,
-  });
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [image, setImage] = useState('');
+
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const fetchCategories = async () => {
+    try {
+      const res = await adminApi.get('/categories');
+
+      if (res.success) {
+        setCategories(res.data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const res = await adminApi.get('/categories');
-
-        if (res.success && res.data.length > 0) {
-          setCategories(res.data);
-
-          setFormData((prev) => ({
-            ...prev,
-            category: res.data[0]._id,
-          }));
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
     fetchCategories();
   }, []);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
 
   // ============================================================
   // CLOUDINARY IMAGE UPLOAD
@@ -88,7 +57,9 @@ const AdminAddProductPage = () => {
     try {
       setUploadingImage(true);
 
-      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+      const cloudName =
+        import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+
       const uploadPreset =
         import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
@@ -120,19 +91,22 @@ const AdminAddProductPage = () => {
       }
 
       // Cloudinary URL
-      setFormData((prev) => ({
-        ...prev,
-        image: data.secure_url,
-      }));
-
+      setImage(data.secure_url);
       setImagePreview(data.secure_url);
 
-      console.log('Cloudinary Image URL:', data.secure_url);
+      console.log(
+        'Cloudinary Category Image URL:',
+        data.secure_url
+      );
     } catch (error) {
-      console.error('Cloudinary upload error:', error);
+      console.error(
+        'Cloudinary category image upload error:',
+        error
+      );
 
       alert(
-        error.message || 'Failed to upload image. Please try again.'
+        error.message ||
+          'Failed to upload image. Please try again.'
       );
     } finally {
       setUploadingImage(false);
@@ -142,96 +116,79 @@ const AdminAddProductPage = () => {
     }
   };
 
-  const removeImage = () => {
-    setFormData((prev) => ({
-      ...prev,
-      image: '',
-    }));
+  // ============================================================
+  // REMOVE IMAGE
+  // ============================================================
 
+  const removeImage = () => {
+    setImage('');
     setImagePreview('');
   };
 
   // ============================================================
-  // SUBMIT PRODUCT
+  // ADD CATEGORY
   // ============================================================
 
-  const handleSubmit = async (e) => {
+  const handleAddCategory = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData.name ||
-      !formData.category ||
-      !formData.price ||
-      !formData.sku ||
-      !formData.description
-    ) {
-      return alert(
-        'Please fill in all required fields (Name, Category, Price, SKU, Description)'
-      );
+    if (!name.trim()) {
+      return alert('Category name required');
     }
 
     if (uploadingImage) {
-      return alert('Please wait until the image upload is complete.');
+      return alert(
+        'Please wait until the image upload is complete.'
+      );
     }
 
     try {
-      setLoading(true);
-
-      const res = await adminApi.post('/products', {
-        name: formData.name,
-        category: formData.category,
-        brand: formData.brand,
-
-        price: Number(formData.price),
-
-        discountPrice: formData.discountPrice
-          ? Number(formData.discountPrice)
-          : 0,
-
-        images: [
-          formData.image ||
-            'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=600',
-        ],
-
-        description: formData.description,
-
-        shortDescription: formData.shortDescription,
-
-        ingredients: formData.ingredients
-          ? formData.ingredients
-              .split(',')
-              .map((i) => i.trim())
-          : [],
-
-        benefits: formData.benefits
-          ? formData.benefits
-              .split(',')
-              .map((b) => b.trim())
-          : [],
-
-        usage: formData.usage,
-
-        storageInstructions:
-          formData.storageInstructions,
-
-        weight: formData.weight,
-
-        stock: Number(formData.stock),
-
-        sku: formData.sku,
-
-        featured: formData.featured,
+      const res = await adminApi.post('/categories', {
+        name: name.trim(),
+        description: description.trim(),
+        image,
       });
 
       if (res.success) {
-        alert('🎉 Product added successfully to MongoDB!');
+        setCategories([...categories, res.data]);
 
-        navigate('/admin/products');
+        setName('');
+        setDescription('');
+        setImage('');
+        setImagePreview('');
+
+        alert('Category added successfully!');
       }
     } catch (err) {
       alert(err.message);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  // ============================================================
+  // DELETE CATEGORY
+  // ============================================================
+
+  const handleDelete = async (id, catName) => {
+    if (
+      window.confirm(
+        `Delete category "${catName}"?`
+      )
+    ) {
+      try {
+        const res = await adminApi.delete(
+          `/categories/${id}`
+        );
+
+        if (res.success) {
+          setCategories(
+            categories.filter(
+              (c) => c._id !== id
+            )
+          );
+        }
+      } catch (err) {
+        alert(err.message);
+      }
     }
   };
 
@@ -244,309 +201,234 @@ const AdminAddProductPage = () => {
 
         <main className="p-6 space-y-6 flex-1 overflow-y-auto">
 
-          {/* HEADER */}
+          {/* PAGE HEADER */}
 
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="p-2 rounded-full bg-[#FFFDF8] border border-[#EAE1D2]"
-            >
-              <ArrowLeft className="w-4 h-4 text-[#123D2A]" />
-            </button>
+          <div>
+            <h2 className="font-serif font-bold text-2xl text-[#123D2A]">
+              Category Management
+            </h2>
 
-            <div>
-              <h2 className="font-serif font-bold text-2xl text-[#123D2A]">
-                Add New Product
-              </h2>
-
-              <p className="text-xs text-[#7A6248]">
-                Create new Ayurvedic formulation in MongoDB catalog.
-              </p>
-            </div>
+            <p className="text-xs text-[#7A6248]">
+              Control product categories displayed across
+              the store.
+            </p>
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="bg-[#FFFDF8] p-8 rounded-3xl border border-[#EAE1D2] shadow-xs space-y-6"
-          >
-
-            {/* BASIC INFORMATION */}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              {/* PRODUCT NAME */}
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Product Name *
-                </label>
-
-                <input
-                  type="text"
-                  name="name"
-                  required
-                  placeholder="e.g. Organic Herbal Kadha"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* CATEGORY */}
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Category *
-                </label>
-
-                <select
-                  name="category"
-                  required
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none font-bold"
-                >
-                  {categories.map((c) => (
-                    <option
-                      key={c._id}
-                      value={c._id}
-                    >
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* PRICE */}
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Price (₹) *
-                </label>
-
-                <input
-                  type="number"
-                  name="price"
-                  required
-                  placeholder="299"
-                  value={formData.price}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* DISCOUNT */}
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Discount Price (₹)
-                </label>
-
-                <input
-                  type="number"
-                  name="discountPrice"
-                  placeholder="249"
-                  value={formData.discountPrice}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* SKU */}
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  SKU Code *
-                </label>
-
-                <input
-                  type="text"
-                  name="sku"
-                  required
-                  placeholder="AVM-KAD-009"
-                  value={formData.sku}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              {/* STOCK */}
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Stock Quantity *
-                </label>
-
-                <input
-                  type="number"
-                  name="stock"
-                  required
-                  value={formData.stock}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
             {/* ==================================================
-                IMAGE UPLOAD
+                CREATE CATEGORY FORM
             ================================================== */}
 
-            <div>
-              <label className="text-xs font-bold text-[#123D2A] uppercase block mb-2">
-                Product Image
-              </label>
+            <form
+              onSubmit={handleAddCategory}
+              className="lg:col-span-4 bg-[#FFFDF8] p-6 rounded-2xl border border-[#EAE1D2] space-y-4 shadow-xs"
+            >
 
-              {!imagePreview ? (
-                <label
-                  htmlFor="product-image"
-                  className="w-full min-h-[180px] border-2 border-dashed border-[#C49A52]/50 rounded-2xl bg-[#F7F2E8] flex flex-col items-center justify-center cursor-pointer hover:border-[#123D2A] transition"
-                >
-                  <Upload className="w-8 h-8 text-[#123D2A] mb-3" />
+              <h3 className="font-serif font-bold text-lg text-[#123D2A] flex items-center gap-2">
+                <FolderTree className="w-5 h-5 text-[#789B72]" />
 
-                  <span className="text-sm font-bold text-[#123D2A]">
-                    {uploadingImage
-                      ? 'UPLOADING IMAGE...'
-                      : 'CLICK TO SELECT IMAGE'}
-                  </span>
+                Add New Category
+              </h3>
 
-                  <span className="text-xs text-[#7A6248] mt-1">
-                    JPG, PNG, WEBP • Maximum 5MB
-                  </span>
+              {/* CATEGORY NAME */}
 
-                  <input
-                    id="product-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    disabled={uploadingImage}
-                    className="hidden"
-                  />
+              <div>
+                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
+                  Category Name *
                 </label>
-              ) : (
-                <div className="relative w-full max-w-md">
 
-                  <img
-                    src={imagePreview}
-                    alt="Product preview"
-                    className="w-full h-64 object-cover rounded-2xl border border-[#EAE1D2]"
-                  />
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Skin Care"
+                  value={name}
+                  onChange={(e) =>
+                    setName(e.target.value)
+                  }
+                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
+                />
+              </div>
 
-                  <button
-                    type="button"
-                    onClick={removeImage}
-                    className="absolute top-3 right-3 w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700"
+              {/* DESCRIPTION */}
+
+              <div>
+                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
+                  Description
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Brief description..."
+                  value={description}
+                  onChange={(e) =>
+                    setDescription(e.target.value)
+                  }
+                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
+                />
+              </div>
+
+              {/* ==================================================
+                  CATEGORY IMAGE UPLOAD
+              ================================================== */}
+
+              <div>
+                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-2">
+                  Category Image
+                </label>
+
+                {!imagePreview ? (
+                  <label
+                    htmlFor="category-image"
+                    className="w-full min-h-[160px] border-2 border-dashed border-[#C49A52]/50 rounded-2xl bg-[#F7F2E8] flex flex-col items-center justify-center cursor-pointer hover:border-[#123D2A] transition"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
 
-                  <div className="mt-2 px-3 py-2 bg-[#F7F2E8] rounded-xl">
-                    <p className="text-[10px] text-[#7A6248] break-all">
-                      Image uploaded successfully
-                    </p>
+                    <Upload className="w-8 h-8 text-[#123D2A] mb-3" />
 
-                    <p className="text-[10px] text-[#123D2A] break-all font-medium">
-                      {formData.image}
-                    </p>
+                    <span className="text-sm font-bold text-[#123D2A] text-center">
+                      {uploadingImage
+                        ? 'UPLOADING IMAGE...'
+                        : 'CLICK TO SELECT IMAGE'}
+                    </span>
+
+                    <span className="text-xs text-[#7A6248] mt-1">
+                      JPG, PNG, WEBP • Maximum 5MB
+                    </span>
+
+                    <input
+                      id="category-image"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      disabled={uploadingImage}
+                      className="hidden"
+                    />
+
+                  </label>
+                ) : (
+                  <div className="relative w-full">
+
+                    <img
+                      src={imagePreview}
+                      alt="Category preview"
+                      className="w-full h-40 object-cover rounded-2xl border border-[#EAE1D2]"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={removeImage}
+                      className="absolute top-3 right-3 w-9 h-9 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+
+                    <div className="mt-2 px-3 py-2 bg-[#F7F2E8] rounded-xl">
+                      <p className="text-[10px] text-[#7A6248]">
+                        Image uploaded successfully
+                      </p>
+
+                      <p className="text-[10px] text-[#123D2A] break-all font-medium">
+                        {image}
+                      </p>
+                    </div>
+
                   </div>
+                )}
+              </div>
+
+              {/* CREATE BUTTON */}
+
+              <button
+                type="submit"
+                disabled={uploadingImage}
+                className="w-full py-3 bg-[#123D2A] text-white text-xs font-bold rounded-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+
+                <Plus className="w-4 h-4 text-[#C49A52]" />
+
+                {uploadingImage
+                  ? 'UPLOADING IMAGE...'
+                  : 'CREATE CATEGORY'}
+
+              </button>
+
+            </form>
+
+            {/* ==================================================
+                CATEGORY LIST
+            ================================================== */}
+
+            <div className="lg:col-span-8 bg-[#FFFDF8] p-6 rounded-2xl border border-[#EAE1D2] shadow-xs">
+
+              <h3 className="font-serif font-bold text-lg text-[#123D2A] mb-4">
+                Existing Categories ({categories.length})
+              </h3>
+
+              {loading ? (
+                <p className="text-xs font-bold text-[#123D2A]">
+                  Loading categories...
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                  {categories.map((cat) => (
+
+                    <div
+                      key={cat._id}
+                      className="p-4 bg-[#F7F2E8]/60 rounded-xl border border-[#EAE1D2] flex items-center justify-between"
+                    >
+
+                      <div className="flex items-center space-x-3">
+
+                        <img
+                          src={
+                            cat.image ||
+                            'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=600'
+                          }
+                          alt={cat.name}
+                          className="w-12 h-12 object-cover rounded-lg"
+                        />
+
+                        <div>
+                          <h4 className="font-bold text-xs text-[#123D2A]">
+                            {cat.name}
+                          </h4>
+
+                          <span className="text-[10px] text-[#7A6248]">
+                            slug: {cat.slug}
+                          </span>
+                        </div>
+
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleDelete(
+                            cat._id,
+                            cat.name
+                          )
+                        }
+                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+
+                    </div>
+
+                  ))}
+
                 </div>
               )}
+
             </div>
 
-            {/* INGREDIENTS + BENEFITS */}
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Ingredients (comma separated)
-                </label>
-
-                <input
-                  type="text"
-                  name="ingredients"
-                  placeholder="Tulsi, Ginger, Cinnamon"
-                  value={formData.ingredients}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                  Key Benefits (comma separated)
-                </label>
-
-                <input
-                  type="text"
-                  name="benefits"
-                  placeholder="Boosts Immunity, Improves Digestion"
-                  value={formData.benefits}
-                  onChange={handleChange}
-                  className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* DESCRIPTION */}
-
-            <div>
-              <label className="text-xs font-bold text-[#123D2A] uppercase block mb-1">
-                Full Description *
-              </label>
-
-              <textarea
-                name="description"
-                rows={4}
-                required
-                placeholder="Detailed Ayurvedic description..."
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full p-2.5 text-xs bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl focus:outline-none"
-              />
-            </div>
-
-            {/* FEATURED */}
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="featured"
-                name="featured"
-                checked={formData.featured}
-                onChange={handleChange}
-                className="w-4 h-4 text-[#123D2A]"
-              />
-
-              <label
-                htmlFor="featured"
-                className="text-xs font-bold text-[#123D2A]"
-              >
-                Feature on Homepage New Arrivals
-              </label>
-            </div>
-
-            {/* SUBMIT */}
-
-            <button
-              type="submit"
-              disabled={loading || uploadingImage}
-              className="px-8 py-3 bg-[#123D2A] text-white text-xs font-bold tracking-widest rounded-full hover:bg-[#0B2D1E] shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Save className="w-4 h-4 text-[#C49A52]" />
-
-              {loading
-                ? 'SAVING PRODUCT...'
-                : uploadingImage
-                ? 'UPLOADING IMAGE...'
-                : 'SAVE & PUBLISH PRODUCT'}
-            </button>
-
-          </form>
         </main>
       </div>
     </div>
   );
 };
 
-export default AdminAddProductPage;
+export default AdminCategoriesPage;
