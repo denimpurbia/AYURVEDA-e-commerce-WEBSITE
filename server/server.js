@@ -9,7 +9,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const connectDB = require('./config/db');
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const {
+  notFound,
+  errorHandler,
+} = require('./middleware/errorMiddleware');
 
 // Route Imports
 const authRoutes = require('./routes/authRoutes');
@@ -46,10 +49,13 @@ const allowedOrigins = [
   'http://localhost:5174',
 
   // Production Client
-  'https://ayurveda-e-commerce-website-fc81su9es-denimpurbias-projects.vercel.app',
+  'https://ayurveda-e-commerce-website.vercel.app',
 
   // Production Admin
   'https://ayurvedamart-admin.vercel.app',
+
+  // Vercel project deployment URL
+  'https://ayurveda-e-commerce-website-fc81su9es-denimpurbias-projects.vercel.app',
 
   // Environment variables
   process.env.CLIENT_URL,
@@ -62,20 +68,22 @@ const isAllowedVercelPreview = (origin) => {
   try {
     const url = new URL(origin);
 
-    // Only allow AyurvedaMart Admin preview deployments
+    if (url.protocol !== 'https:') {
+      return false;
+    }
+
+    // AyurvedaMart Admin preview deployments
     if (
-      url.protocol === 'https:' &&
-      /^ayurvedamart-admin-[a-z0-9]+-denimpurbias-projects\.vercel\.app$/i.test(
+      /^ayurvedamart-admin-[a-z0-9-]+-denimpurbias-projects\.vercel\.app$/i.test(
         url.hostname
       )
     ) {
       return true;
     }
 
-    // Only allow AyurvedaMart Client preview deployments
+    // AyurvedaMart Client preview deployments
     if (
-      url.protocol === 'https:' &&
-      /^ayurveda-e-commerce-website-[a-z0-9]+-denimpurbias-projects\.vercel\.app$/i.test(
+      /^ayurveda-e-commerce-website-[a-z0-9-]+-denimpurbias-projects\.vercel\.app$/i.test(
         url.hostname
       )
     ) {
@@ -90,12 +98,13 @@ const isAllowedVercelPreview = (origin) => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Postman / server-to-server / requests without Origin
+    // Requests without Origin
+    // Postman / server-to-server
     if (!origin) {
       return callback(null, true);
     }
 
-    // Exact production/local origins
+    // Exact allowed origins
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
@@ -129,7 +138,9 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
+// Apply CORS ONCE
 app.use(cors(corsOptions));
+
 /* ============================================================
    BODY PARSING
 ============================================================ */
@@ -159,6 +170,7 @@ app.use(mongoSanitize());
 
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+
   limit: 300,
 
   standardHeaders: 'draft-8',
@@ -179,6 +191,7 @@ app.use('/api', globalLimiter);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
+
   limit: 30,
 
   standardHeaders: 'draft-8',
@@ -199,7 +212,9 @@ app.use('/api/auth', authLimiter);
 
 app.use(
   '/uploads',
-  express.static(path.join(__dirname, 'uploads'))
+  express.static(
+    path.join(__dirname, 'uploads')
+  )
 );
 
 /* ============================================================
@@ -209,7 +224,8 @@ app.use(
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     success: true,
-    message: '🌿 AYURVEDAMART API Server is running smoothly',
+    message:
+      '🌿 AYURVEDAMART API Server is running smoothly',
     timestamp: new Date(),
   });
 });
@@ -219,13 +235,21 @@ app.get('/api/health', (req, res) => {
 ============================================================ */
 
 app.use('/api/auth', authRoutes);
+
 app.use('/api/products', productRoutes);
+
 app.use('/api/categories', categoryRoutes);
+
 app.use('/api/cart', cartRoutes);
+
 app.use('/api/wishlist', wishlistRoutes);
+
 app.use('/api/orders', orderRoutes);
+
 app.use('/api/reviews', reviewRoutes);
+
 app.use('/api/users', userRoutes);
+
 app.use('/api/chat', chatRoutes);
 
 /* ============================================================
@@ -233,6 +257,7 @@ app.use('/api/chat', chatRoutes);
 ============================================================ */
 
 app.use(notFound);
+
 app.use(errorHandler);
 
 /* ============================================================
