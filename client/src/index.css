@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --forest-green: #123D2A;
+    --deep-green: #0B2D1E;
+    --sage-green: #789B72;
+    --cream: #F7F2E8;
+    --warm-white: #FFFDF8;
+    --gold: #C49A52;
+    --earth-brown: #7A6248;
+    --text: #243229;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom Utilities & Animations */
+.hero-gradient {
+  background: linear-gradient(180deg, rgba(247, 242, 232, 0.4) 0%, rgba(255, 253, 248, 1) 100%);
+}
+
+.banner-overlay {
+  background: linear-gradient(90deg, #123D2A 0%, rgba(18, 61, 42, 0.85) 60%, rgba(18, 61, 42, 0.2) 100%);
+}

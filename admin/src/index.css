@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --forest-green: #123D2A;
+    --deep-green: #0B2D1E;
+    --cream: #F7F2E8;
+    --gold: #C49A52;
+  }
+}
