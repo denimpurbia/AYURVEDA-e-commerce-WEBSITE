@@ -59,7 +59,13 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests without Origin
+      // e.g. Postman/server-to-server
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
@@ -82,43 +88,10 @@ app.use(
       'Content-Type',
       'Authorization',
     ],
+
+    optionsSuccessStatus: 204,
   })
 );
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) {
-      return callback(null, true);
-    }
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    console.warn(`CORS blocked origin: ${origin}`);
-    return callback(new Error('Not allowed by CORS'));
-  },
-
-  credentials: true,
-
-  methods: [
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
-  ],
-
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-  ],
-
-  optionsSuccessStatus: 204,
-};
-
-app.use(cors(corsOptions));
 
 /* ============================================================
    BODY PARSING
@@ -136,3 +109,120 @@ app.use(
     limit: '1mb',
   })
 );
+
+/* ============================================================
+   MONGODB INJECTION PROTECTION
+============================================================ */
+
+app.use(mongoSanitize());
+
+/* ============================================================
+   GLOBAL RATE LIMIT
+============================================================ */
+
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+
+  message: {
+    success: false,
+    message:
+      'Too many requests from this IP. Please try again later.',
+  },
+});
+
+app.use('/api', globalLimiter);
+
+/* ============================================================
+   AUTH RATE LIMIT
+============================================================ */
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 30,
+
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+
+  message: {
+    success: false,
+    message:
+      'Too many authentication requests. Please try again later.',
+  },
+});
+
+app.use('/api/auth', authLimiter);
+
+/* ============================================================
+   STATIC UPLOADS
+============================================================ */
+
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, 'uploads'))
+);
+
+/* ============================================================
+   HEALTH CHECK
+============================================================ */
+
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: '🌿 AYURVEDAMART API Server is running smoothly',
+    timestamp: new Date(),
+  });
+});
+
+/* ============================================================
+   API ROUTES
+============================================================ */
+
+app.use('/api/auth', authRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/chat', chatRoutes);
+
+/* ============================================================
+   ERROR HANDLING
+============================================================ */
+
+app.use(notFound);
+app.use(errorHandler);
+
+/* ============================================================
+   START SERVER
+============================================================ */
+
+const PORT = process.env.PORT || 5000;
+
+connectDB()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(
+        `🚀 AYURVEDAMART Server running on port ${PORT} in ${
+          process.env.NODE_ENV || 'development'
+        } mode`
+      );
+
+      console.log(
+        '🛡️ Security: Helmet + CORS + Rate Limiting + MongoDB Sanitization enabled'
+      );
+    });
+  })
+  .catch((error) => {
+    console.error(
+      '❌ Failed to start server:',
+      error.message
+    );
+
+    process.exit(1);
+  });
