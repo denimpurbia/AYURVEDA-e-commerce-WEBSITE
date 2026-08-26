@@ -41,18 +41,49 @@ app.use(
 ============================================================ */
 
 const allowedOrigins = [
+  // Local development
   'http://localhost:5173',
   'http://localhost:5174',
 
+  // Production Client
   'https://ayurveda-e-commerce-website-fc81su9es-denimpurbias-projects.vercel.app',
-  'https://ayurvedamart.vercel.app',
 
-  'https://ayurvedamart-admin-acu8s2sqt-denimpurbias-projects.vercel.app',
+  // Production Admin
   'https://ayurvedamart-admin.vercel.app',
 
+  // Environment variables
   process.env.CLIENT_URL,
   process.env.ADMIN_URL,
 ].filter(Boolean);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      console.warn(`CORS blocked origin: ${origin}`);
+      return callback(new Error('Not allowed by CORS'));
+    },
+
+    credentials: true,
+
+    methods: [
+      'GET',
+      'POST',
+      'PUT',
+      'PATCH',
+      'DELETE',
+      'OPTIONS',
+    ],
+
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+    ],
+  })
+);
 
 const corsOptions = {
   origin: function (origin, callback) {
