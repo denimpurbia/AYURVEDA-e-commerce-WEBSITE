@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+
 import AdminLoginPage from './pages/Login/AdminLoginPage';
 import AdminDashboardPage from './pages/Dashboard/AdminDashboardPage';
 import AdminProductsPage from './pages/Products/AdminProductsPage';
@@ -11,22 +12,146 @@ import AdminUsersPage from './pages/Users/AdminUsersPage';
 import AdminReviewsPage from './pages/Reviews/AdminReviewsPage';
 import AdminSettingsPage from './pages/Settings/AdminSettingsPage';
 
-function App() {
+import { useAdminAuth } from './context/AdminAuthContext';
+
+const ProtectedAdminRoute = ({ children }) => {
+  const { admin, loading } = useAdminAuth();
+
+  // Wait until existing admin session is checked
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFFDF8] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-[#123D2A] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+          <p className="text-sm font-medium text-[#123D2A]">
+            Checking admin session...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // No valid admin session
+  if (!admin || admin.role !== 'admin') {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  // Valid admin
+  return children;
+};
+
+const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />
-      <Route path="/admin/login" element={<AdminLoginPage />} />
-      <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-      <Route path="/admin/products" element={<AdminProductsPage />} />
-      <Route path="/admin/products/add" element={<AdminAddProductPage />} />
-      <Route path="/admin/products/:id/edit" element={<AdminEditProductPage />} />
-      <Route path="/admin/categories" element={<AdminCategoriesPage />} />
-      <Route path="/admin/orders" element={<AdminOrdersPage />} />
-      <Route path="/admin/users" element={<AdminUsersPage />} />
-      <Route path="/admin/reviews" element={<AdminReviewsPage />} />
-      <Route path="/admin/settings" element={<AdminSettingsPage />} />
+
+      {/* Public Admin Login */}
+      <Route
+        path="/admin/login"
+        element={<AdminLoginPage />}
+      />
+
+      {/* Admin Dashboard */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedAdminRoute>
+            <AdminDashboardPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Products */}
+      <Route
+        path="/admin/products"
+        element={
+          <ProtectedAdminRoute>
+            <AdminProductsPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products/add"
+        element={
+          <ProtectedAdminRoute>
+            <AdminAddProductPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products/:id/edit"
+        element={
+          <ProtectedAdminRoute>
+            <AdminEditProductPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Categories */}
+      <Route
+        path="/admin/categories"
+        element={
+          <ProtectedAdminRoute>
+            <AdminCategoriesPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Orders */}
+      <Route
+        path="/admin/orders"
+        element={
+          <ProtectedAdminRoute>
+            <AdminOrdersPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Users */}
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedAdminRoute>
+            <AdminUsersPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Reviews */}
+      <Route
+        path="/admin/reviews"
+        element={
+          <ProtectedAdminRoute>
+            <AdminReviewsPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Settings */}
+      <Route
+        path="/admin/settings"
+        element={
+          <ProtectedAdminRoute>
+            <AdminSettingsPage />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* Root */}
+      <Route
+        path="/"
+        element={<Navigate to="/admin/login" replace />}
+      />
+
+      {/* Unknown routes */}
+      <Route
+        path="*"
+        element={<Navigate to="/admin/login" replace />}
+      />
+
     </Routes>
   );
-}
+};
 
 export default App;
