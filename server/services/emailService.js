@@ -1,25 +1,53 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
+
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_APP_PASSWORD,
   },
+
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 60000,
 });
 
-// Registration OTP
+// ============================================================
+// VERIFY SMTP CONNECTION
+// ============================================================
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('❌ SMTP Connection Error:', error.message);
+  } else {
+    console.log('✅ SMTP Server is ready to send emails');
+  }
+});
+
+// ============================================================
+// REGISTRATION OTP
+// ============================================================
+
 const sendVerificationOTP = async (email, otp) => {
   const mailOptions = {
     from: `"AyurvedaMart" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'AyurvedaMart - Verify Your Email',
+
     text: `Your AyurvedaMart verification OTP is ${otp}. This OTP is valid for 5 minutes. Do not share this OTP with anyone.`,
+
     html: `
       <div style="margin:0;padding:30px;background:#f7f2e8;font-family:Arial,sans-serif;">
         <div style="max-width:500px;margin:auto;background:#fffdf8;border:1px solid #eae1d2;border-radius:18px;padding:30px;">
+
           <div style="text-align:center;">
-            <h1 style="margin:0;color:#123d2a;font-size:28px;">AyurvedaMart</h1>
+            <h1 style="margin:0;color:#123d2a;font-size:28px;">
+              AyurvedaMart
+            </h1>
+
             <p style="color:#7a6248;font-size:14px;">
               Authentic Ayurveda. Natural Wellness.
             </p>
@@ -65,6 +93,7 @@ const sendVerificationOTP = async (email, otp) => {
           <p style="color:#7a6248;font-size:11px;text-align:center;">
             © ${new Date().getFullYear()} AyurvedaMart
           </p>
+
         </div>
       </div>
     `,
@@ -73,13 +102,18 @@ const sendVerificationOTP = async (email, otp) => {
   await transporter.sendMail(mailOptions);
 };
 
-// Password Reset OTP
+// ============================================================
+// PASSWORD RESET OTP
+// ============================================================
+
 const sendPasswordResetOTP = async (email, otp) => {
   const mailOptions = {
     from: `"AyurvedaMart" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'AyurvedaMart - Password Reset OTP',
+
     text: `Your AyurvedaMart password reset OTP is ${otp}. This OTP is valid for 5 minutes. If you did not request a password reset, please ignore this email.`,
+
     html: `
       <div style="margin:0;padding:30px;background:#f7f2e8;font-family:Arial,sans-serif;">
         <div style="max-width:500px;margin:auto;background:#fffdf8;border:1px solid #eae1d2;border-radius:18px;padding:30px;">
