@@ -28,6 +28,15 @@ const chatRoutes = require('./routes/chatRoutes');
 const app = express();
 
 /* ============================================================
+   RENDER / PROXY CONFIGURATION
+============================================================ */
+
+// Render runs the application behind a reverse proxy.
+// This allows express-rate-limit to correctly read
+// the client's IP address from X-Forwarded-For.
+app.set('trust proxy', 1);
+
+/* ============================================================
    SECURITY HEADERS
 ============================================================ */
 
