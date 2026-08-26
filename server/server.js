@@ -56,43 +56,80 @@ const allowedOrigins = [
   process.env.ADMIN_URL,
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests without Origin
-      // e.g. Postman/server-to-server
-      if (!origin) {
-        return callback(null, true);
-      }
+const isAllowedVercelPreview = (origin) => {
+  if (!origin) return false;
 
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
+  try {
+    const url = new URL(origin);
 
-      console.warn(`CORS blocked origin: ${origin}`);
-      return callback(new Error('Not allowed by CORS'));
-    },
+    // Only allow AyurvedaMart Admin preview deployments
+    if (
+      url.protocol === 'https:' &&
+      /^ayurvedamart-admin-[a-z0-9]+-denimpurbias-projects\.vercel\.app$/i.test(
+        url.hostname
+      )
+    ) {
+      return true;
+    }
 
-    credentials: true,
+    // Only allow AyurvedaMart Client preview deployments
+    if (
+      url.protocol === 'https:' &&
+      /^ayurveda-e-commerce-website-[a-z0-9]+-denimpurbias-projects\.vercel\.app$/i.test(
+        url.hostname
+      )
+    ) {
+      return true;
+    }
 
-    methods: [
-      'GET',
-      'POST',
-      'PUT',
-      'PATCH',
-      'DELETE',
-      'OPTIONS',
-    ],
+    return false;
+  } catch (error) {
+    return false;
+  }
+};
 
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-    ],
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Postman / server-to-server / requests without Origin
+    if (!origin) {
+      return callback(null, true);
+    }
 
-    optionsSuccessStatus: 204,
-  })
-);
+    // Exact production/local origins
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
+    // Vercel preview deployments
+    if (isAllowedVercelPreview(origin)) {
+      return callback(null, true);
+    }
+
+    console.warn(`CORS blocked origin: ${origin}`);
+
+    return callback(new Error('Not allowed by CORS'));
+  },
+
+  credentials: true,
+
+  methods: [
+    'GET',
+    'POST',
+    'PUT',
+    'PATCH',
+    'DELETE',
+    'OPTIONS',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+  ],
+
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 /* ============================================================
    BODY PARSING
 ============================================================ */
