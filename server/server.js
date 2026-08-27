@@ -9,6 +9,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const connectDB = require('./config/db');
+
 const {
   notFound,
   errorHandler,
@@ -24,6 +25,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 
 const app = express();
 
@@ -31,9 +33,6 @@ const app = express();
    RENDER / PROXY CONFIGURATION
 ============================================================ */
 
-// Render runs the application behind a reverse proxy.
-// This allows express-rate-limit to correctly read
-// the client's IP address from X-Forwarded-For.
 app.set('trust proxy', 1);
 
 /* ============================================================
@@ -81,7 +80,7 @@ const isAllowedVercelPreview = (origin) => {
       return false;
     }
 
-    // AyurvedaMart Admin preview deployments
+    // Admin preview deployments
     if (
       /^ayurvedamart-admin-[a-z0-9-]+-denimpurbias-projects\.vercel\.app$/i.test(
         url.hostname
@@ -90,7 +89,7 @@ const isAllowedVercelPreview = (origin) => {
       return true;
     }
 
-    // AyurvedaMart Client preview deployments
+    // Client preview deployments
     if (
       /^ayurveda-e-commerce-website-[a-z0-9-]+-denimpurbias-projects\.vercel\.app$/i.test(
         url.hostname
@@ -107,8 +106,7 @@ const isAllowedVercelPreview = (origin) => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Requests without Origin
-    // Postman / server-to-server
+    // Postman / server-to-server requests
     if (!origin) {
       return callback(null, true);
     }
@@ -147,7 +145,6 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-// Apply CORS ONCE
 app.use(cors(corsOptions));
 
 /* ============================================================
@@ -260,6 +257,9 @@ app.use('/api/reviews', reviewRoutes);
 app.use('/api/users', userRoutes);
 
 app.use('/api/chat', chatRoutes);
+
+// Contact Messages
+app.use('/api/contact', contactRoutes);
 
 /* ============================================================
    ERROR HANDLING
