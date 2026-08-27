@@ -11,22 +11,58 @@ import {
   Settings,
   ExternalLink,
   Leaf,
-  Mail,
+  MessageSquare,
 } from 'lucide-react';
 
 const AdminSidebar = () => {
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
-    { name: 'Products', path: '/admin/products', icon: Package },
-    { name: 'Add Product', path: '/admin/products/add', icon: PlusCircle },
-    { name: 'Categories', path: '/admin/categories', icon: FolderTree },
-    { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
-    { name: 'Users', path: '/admin/users', icon: Users },
-    { name: 'Reviews', path: '/admin/reviews', icon: Star },
-    { name: 'Messages', path: '/admin/messages', icon: Mail },
-    { name: 'Settings', path: '/admin/settings', icon: Settings },
+    {
+      name: 'Dashboard',
+      path: '/admin/dashboard',
+      icon: LayoutDashboard,
+    },
+    {
+      name: 'Products',
+      path: '/admin/products',
+      icon: Package,
+    },
+    {
+      name: 'Add Product',
+      path: '/admin/products/add',
+      icon: PlusCircle,
+    },
+    {
+      name: 'Categories',
+      path: '/admin/categories',
+      icon: FolderTree,
+    },
+    {
+      name: 'Orders',
+      path: '/admin/orders',
+      icon: ShoppingBag,
+    },
+    {
+      name: 'Users',
+      path: '/admin/users',
+      icon: Users,
+    },
+    {
+      name: 'Reviews',
+      path: '/admin/reviews',
+      icon: Star,
+    },
+    {
+      name: 'Messages',
+      path: '/admin/contact-messages',
+      icon: MessageSquare,
+    },
+    {
+      name: 'Settings',
+      path: '/admin/settings',
+      icon: Settings,
+    },
   ];
 
   return (
@@ -53,7 +89,9 @@ const AdminSidebar = () => {
         <nav className="p-4 space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+
+            const isActive =
+              location.pathname === item.path;
 
             return (
               <Link
@@ -66,6 +104,7 @@ const AdminSidebar = () => {
                 }`}
               >
                 <Icon className="w-4 h-4" />
+
                 <span>{item.name}</span>
               </Link>
             );
