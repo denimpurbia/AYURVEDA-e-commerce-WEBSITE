@@ -11,6 +11,7 @@ import {
   Settings,
   ExternalLink,
   Leaf,
+  Mail,
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -24,6 +25,7 @@ const AdminSidebar = () => {
     { name: 'Orders', path: '/admin/orders', icon: ShoppingBag },
     { name: 'Users', path: '/admin/users', icon: Users },
     { name: 'Reviews', path: '/admin/reviews', icon: Star },
+    { name: 'Messages', path: '/admin/messages', icon: Mail },
     { name: 'Settings', path: '/admin/settings', icon: Settings },
   ];
 
@@ -35,10 +37,12 @@ const AdminSidebar = () => {
           <div className="w-9 h-9 rounded-full bg-[#C49A52] text-[#0B2D1E] flex items-center justify-center font-bold">
             <Leaf className="w-5 h-5 fill-current" />
           </div>
+
           <div>
             <h2 className="font-serif font-bold text-lg text-white tracking-wider">
               AYURVEDAMART
             </h2>
+
             <span className="text-[10px] text-[#C49A52] font-semibold tracking-widest uppercase block">
               ADMIN CONTROL PANEL
             </span>
@@ -78,8 +82,10 @@ const AdminSidebar = () => {
           className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#123D2A] text-xs font-bold text-emerald-100 hover:text-white transition-colors"
         >
           <span className="flex items-center gap-2">
-            <Leaf className="w-4 h-4 text-[#789B72]" /> Customer Website
+            <Leaf className="w-4 h-4 text-[#789B72]" />
+            Customer Website
           </span>
+
           <ExternalLink className="w-3.5 h-3.5 text-[#C49A52]" />
         </a>
       </div>
