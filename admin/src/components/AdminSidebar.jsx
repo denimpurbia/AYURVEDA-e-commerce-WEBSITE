@@ -11,7 +11,7 @@ import {
   Settings,
   ExternalLink,
   Leaf,
-  MessageSquare,
+  Mail,
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -53,11 +53,14 @@ const AdminSidebar = () => {
       path: '/admin/reviews',
       icon: Star,
     },
+
+    // Contact Messages
     {
       name: 'Messages',
       path: '/admin/contact-messages',
-      icon: MessageSquare,
+      icon: Mail,
     },
+
     {
       name: 'Settings',
       path: '/admin/settings',
@@ -67,9 +70,11 @@ const AdminSidebar = () => {
 
   return (
     <aside className="w-64 bg-[#0B2D1E] text-white flex flex-col justify-between min-h-screen border-r border-[#123D2A] shrink-0">
+      
       <div>
         {/* Brand Header */}
         <div className="p-6 border-b border-[#123D2A] flex items-center space-x-3">
+          
           <div className="w-9 h-9 rounded-full bg-[#C49A52] text-[#0B2D1E] flex items-center justify-center font-bold">
             <Leaf className="w-5 h-5 fill-current" />
           </div>
@@ -83,10 +88,12 @@ const AdminSidebar = () => {
               ADMIN CONTROL PANEL
             </span>
           </div>
+
         </div>
 
         {/* Navigation Menu */}
         <nav className="p-4 space-y-1">
+          
           {menuItems.map((item) => {
             const Icon = item.icon;
 
@@ -103,31 +110,41 @@ const AdminSidebar = () => {
                     : 'text-emerald-100/80 hover:bg-[#123D2A]/60 hover:text-white'
                 }`}
               >
+                
                 <Icon className="w-4 h-4" />
 
-                <span>{item.name}</span>
+                <span>
+                  {item.name}
+                </span>
+
               </Link>
             );
           })}
+
         </nav>
       </div>
 
       {/* Customer Website Link */}
       <div className="p-4 border-t border-[#123D2A]">
+        
         <a
           href="http://localhost:5173"
           target="_blank"
           rel="noreferrer"
           className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#123D2A] text-xs font-bold text-emerald-100 hover:text-white transition-colors"
         >
+          
           <span className="flex items-center gap-2">
             <Leaf className="w-4 h-4 text-[#789B72]" />
             Customer Website
           </span>
 
           <ExternalLink className="w-3.5 h-3.5 text-[#C49A52]" />
+
         </a>
+
       </div>
+
     </aside>
   );
 };
