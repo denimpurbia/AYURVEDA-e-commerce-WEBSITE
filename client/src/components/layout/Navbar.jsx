@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Search, ShoppingBag, Heart, User, Menu, X, Leaf } from 'lucide-react';
+import { Search, ShoppingBag, Heart, User, Menu, X } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -34,21 +34,15 @@ const Navbar = ({ onOpenAiChat }) => {
   return (
     <header className="sticky top-0 z-40 bg-[#FFFDF8]/95 backdrop-blur-md border-b border-[#EAE1D2] shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-24 sm:h-28 py-2">
           
           {/* Left / Brand Logo */}
-          <Link to="/" className="flex items-center space-x-3 group">
-            <div className="w-10 h-10 rounded-full bg-[#123D2A] flex items-center justify-center text-[#C49A52] group-hover:scale-105 transition-transform duration-300 shadow-sm">
-              <Leaf className="w-5 h-5 fill-current" />
-            </div>
-            <div>
-              <span className="block font-serif font-bold text-xl md:text-2xl text-[#123D2A] tracking-wider leading-tight">
-                AYURVEDAMART
-              </span>
-              <span className="block text-[9px] font-semibold text-[#7A6248] tracking-widest uppercase">
-                AUTHENTIC AYURVEDA • NATURAL WELLNESS
-              </span>
-            </div>
+          <Link to="/" className="flex items-center group">
+            <img 
+              src="/images/logo.png" 
+              alt="AyurvedaMart" 
+              className="h-16 sm:h-20 md:h-24 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+            />
           </Link>
 
           {/* Desktop Navigation Links */}

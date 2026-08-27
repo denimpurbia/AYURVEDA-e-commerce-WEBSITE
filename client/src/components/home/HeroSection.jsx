@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, ShieldCheck, Award, Play } from 'lucide-react';
+import { ArrowRight, Leaf, ShieldCheck, Award } from 'lucide-react';
 
 const HeroSection = ({ onWatchFilm }) => {
   return (
@@ -82,22 +82,6 @@ const HeroSection = ({ onWatchFilm }) => {
             </div>
           </div>
         </div>
-
-        {/* Watch Ayurveda Film Badge floating directly over bottom-right of the background image */}
-        <div className="absolute bottom-8 right-6 sm:right-12 z-20">
-          <button
-            onClick={onWatchFilm}
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#0B2D1E]/95 text-white p-2 flex flex-col items-center justify-center text-center shadow-2xl hover:scale-105 transition-transform border border-[#C49A52]/40 backdrop-blur-sm group"
-          >
-            <div className="w-8 h-8 rounded-full bg-white text-[#0B2D1E] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform shadow-md">
-              <Play className="w-4 h-4 fill-current ml-0.5 text-[#123D2A]" />
-            </div>
-            <span className="text-[9px] sm:text-[10px] font-bold tracking-wider leading-tight text-white uppercase">
-              WATCH<br />AYURVEDA<br />FILM
-            </span>
-          </button>
-        </div>
-
       </div>
     </section>
   );

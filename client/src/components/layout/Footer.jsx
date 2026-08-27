@@ -12,13 +12,12 @@ const Footer = () => {
           
           {/* Brand Info Column */}
           <div className="lg:col-span-1 space-y-4">
-            <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-full bg-[#123D2A] flex items-center justify-center text-[#C49A52]">
-                <Leaf className="w-4 h-4" />
-              </div>
-              <span className="font-serif font-bold text-lg text-[#123D2A] tracking-wider">
-                AYURVEDAMART
-              </span>
+            <Link to="/" className="inline-block">
+              <img 
+                src="/images/logo.png" 
+                alt="AyurvedaMart" 
+                className="h-14 sm:h-18 w-auto object-contain"
+              />
             </Link>
             <p className="text-xs text-[#7A6248] leading-relaxed font-medium">
               Bringing the wisdom of authentic Ayurveda to your everyday life with pure, chemical-free herbal formulations.
