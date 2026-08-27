@@ -13,7 +13,7 @@ import AdminOrdersPage from './pages/Orders/AdminOrdersPage';
 import AdminUsersPage from './pages/Users/AdminUsersPage';
 import AdminReviewsPage from './pages/Reviews/AdminReviewsPage';
 
-import AdminContactMessagesPage from './pages/Messages/AdminContactMessagesPage';
+import AdminMessagesPage from './pages/Messages/AdminMessagesPage';
 
 import AdminSettingsPage from './pages/Settings/AdminSettingsPage';
 
@@ -130,12 +130,12 @@ const App = () => {
         }
       />
 
-      {/* Contact Messages */}
+      {/* Messages */}
       <Route
-        path="/admin/contact-messages"
+        path="/admin/messages"
         element={
           <ProtectedAdminRoute>
-            <AdminContactMessagesPage />
+            <AdminMessagesPage />
           </ProtectedAdminRoute>
         }
       />
