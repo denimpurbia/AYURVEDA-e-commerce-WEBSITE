@@ -3,12 +3,22 @@ const express = require('express');
 const router = express.Router();
 
 const {
+  // Website reviews
   createReview,
   getApprovedReviews,
   getAllReviews,
   approveReview,
   rejectReview,
   deleteReview,
+
+  // Product reviews
+  createProductReview,
+  getProductReviews,
+  getMyProductReviewStatus,
+  getAllProductReviews,
+  approveProductReview,
+  rejectProductReview,
+  deleteProductReview,
 } = require('../controllers/reviewController');
 
 const {
@@ -18,21 +28,16 @@ const {
 
 
 // ==========================================
-// PUBLIC REVIEWS
+// WEBSITE GENERAL REVIEWS
 // ==========================================
 
-// Get only approved reviews
+// Get approved website reviews
 router.get(
   '/',
   getApprovedReviews
 );
 
-
-// ==========================================
-// CUSTOMER REVIEW
-// ==========================================
-
-// Create review
+// Create website review
 router.post(
   '/',
   protect,
@@ -41,10 +46,35 @@ router.post(
 
 
 // ==========================================
-// ADMIN REVIEW MODERATION
+// PRODUCT REVIEWS - CUSTOMER
 // ==========================================
 
-// Get all reviews including pending and rejected
+// Get approved reviews for a particular product
+router.get(
+  '/product/:productId',
+  getProductReviews
+);
+
+// Check whether logged-in user can review product
+router.get(
+  '/product/:productId/status',
+  protect,
+  getMyProductReviewStatus
+);
+
+// Create product review
+router.post(
+  '/product/:productId',
+  protect,
+  createProductReview
+);
+
+
+// ==========================================
+// WEBSITE REVIEW ADMIN
+// ==========================================
+
+// Get all website reviews
 router.get(
   '/admin/all',
   protect,
@@ -52,8 +82,7 @@ router.get(
   getAllReviews
 );
 
-
-// Approve review
+// Approve website review
 router.put(
   '/:id/approve',
   protect,
@@ -61,8 +90,7 @@ router.put(
   approveReview
 );
 
-
-// Reject review
+// Reject website review
 router.put(
   '/:id/reject',
   protect,
@@ -70,13 +98,49 @@ router.put(
   rejectReview
 );
 
-
-// Delete review
+// Delete website review
 router.delete(
   '/:id',
   protect,
   adminOnly,
   deleteReview
+);
+
+
+// ==========================================
+// PRODUCT REVIEW ADMIN
+// ==========================================
+
+// Get all product reviews
+router.get(
+  '/admin/product/all',
+  protect,
+  adminOnly,
+  getAllProductReviews
+);
+
+// Approve product review
+router.put(
+  '/product/:id/approve',
+  protect,
+  adminOnly,
+  approveProductReview
+);
+
+// Reject product review
+router.put(
+  '/product/:id/reject',
+  protect,
+  adminOnly,
+  rejectProductReview
+);
+
+// Delete product review
+router.delete(
+  '/product/:id',
+  protect,
+  adminOnly,
+  deleteProductReview
 );
 
 
