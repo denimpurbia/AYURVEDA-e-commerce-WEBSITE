@@ -12,110 +12,224 @@ const createSlug = (text) => {
     .replace(/\-\-+/g, '-');
 };
 
-// @desc    Get all categories
-// @route   GET /api/categories
-// @access  Public
+// ==========================================
+// GET ALL CATEGORIES
+// ==========================================
+// GET /api/categories
 const getCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find({ isActive: true }).sort({ name: 1 });
-    return successResponse(res, 200, 'Categories retrieved successfully', categories);
+    const categories = await Category.find({
+      isActive: true,
+    }).sort({
+      name: 1,
+    });
+
+    return successResponse(
+      res,
+      200,
+      'Categories retrieved successfully',
+      categories
+    );
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get category by ID or slug
-// @route   GET /api/categories/:idOrSlug
-// @access  Public
-const getCategoryByIdOrSlug = async (req, res, next) => {
+// ==========================================
+// GET CATEGORY BY ID OR SLUG
+// ==========================================
+// GET /api/categories/:idOrSlug
+const getCategoryByIdOrSlug = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { idOrSlug } = req.params;
+
     let category;
 
     if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
       category = await Category.findById(idOrSlug);
     } else {
-      category = await Category.findOne({ slug: idOrSlug });
+      category = await Category.findOne({
+        slug: idOrSlug,
+      });
     }
 
     if (!category) {
-      return errorResponse(res, 404, 'Category not found');
+      return errorResponse(
+        res,
+        404,
+        'Category not found'
+      );
     }
 
-    return successResponse(res, 200, 'Category retrieved', category);
+    return successResponse(
+      res,
+      200,
+      'Category retrieved',
+      category
+    );
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Create a category
-// @route   POST /api/categories
-// @access  Private/Admin
-const createCategory = async (req, res, next) => {
+// ==========================================
+// CREATE CATEGORY
+// ==========================================
+// POST /api/categories
+const createCategory = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const { name, description, image } = req.body;
+    const {
+      name,
+      description,
+      image,
+    } = req.body;
 
     if (!name) {
-      return errorResponse(res, 400, 'Category name is required');
+      return errorResponse(
+        res,
+        400,
+        'Category name is required'
+      );
     }
 
     const slug = createSlug(name);
-    const existingCategory = await Category.findOne({ slug });
+
+    const existingCategory =
+      await Category.findOne({
+        slug,
+      });
+
     if (existingCategory) {
-      return errorResponse(res, 400, 'Category with this name already exists');
+      return errorResponse(
+        res,
+        400,
+        'Category with this name already exists'
+      );
     }
 
+    // Only image provided from Admin Panel will be saved.
+    // No Unsplash fallback image.
     const category = await Category.create({
       name,
       slug,
       description: description || '',
-      image: image || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&q=80&w=600',
+      image: image || '',
     });
 
-    return successResponse(res, 201, 'Category created successfully', category);
+    return successResponse(
+      res,
+      201,
+      'Category created successfully',
+      category
+    );
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Update category
-// @route   PUT /api/categories/:id
-// @access  Private/Admin
-const updateCategory = async (req, res, next) => {
+// ==========================================
+// UPDATE CATEGORY
+// ==========================================
+// PUT /api/categories/:id
+const updateCategory = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const { name, description, image, isActive } = req.body;
-    const category = await Category.findById(req.params.id);
+    const {
+      name,
+      description,
+      image,
+      isActive,
+    } = req.body;
+
+    const category =
+      await Category.findById(
+        req.params.id
+      );
 
     if (!category) {
-      return errorResponse(res, 404, 'Category not found');
+      return errorResponse(
+        res,
+        404,
+        'Category not found'
+      );
     }
 
     if (name) {
       category.name = name;
       category.slug = createSlug(name);
     }
-    if (description !== undefined) category.description = description;
-    if (image !== undefined) category.image = image;
-    if (isActive !== undefined) category.isActive = isActive;
 
-    const updatedCategory = await category.save();
-    return successResponse(res, 200, 'Category updated successfully', updatedCategory);
+    if (description !== undefined) {
+      category.description =
+        description;
+    }
+
+    // Only update image when Admin Panel sends an image
+    if (image !== undefined) {
+      category.image =
+        image || '';
+    }
+
+    if (isActive !== undefined) {
+      category.isActive =
+        isActive;
+    }
+
+    const updatedCategory =
+      await category.save();
+
+    return successResponse(
+      res,
+      200,
+      'Category updated successfully',
+      updatedCategory
+    );
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Delete category
-// @route   DELETE /api/categories/:id
-// @access  Private/Admin
-const deleteCategory = async (req, res, next) => {
+// ==========================================
+// DELETE CATEGORY
+// ==========================================
+// DELETE /api/categories/:id
+const deleteCategory = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const category = await Category.findById(req.params.id);
+    const category =
+      await Category.findById(
+        req.params.id
+      );
+
     if (!category) {
-      return errorResponse(res, 404, 'Category not found');
+      return errorResponse(
+        res,
+        404,
+        'Category not found'
+      );
     }
+
     await category.deleteOne();
-    return successResponse(res, 200, 'Category deleted successfully');
+
+    return successResponse(
+      res,
+      200,
+      'Category deleted successfully'
+    );
   } catch (error) {
     next(error);
   }
