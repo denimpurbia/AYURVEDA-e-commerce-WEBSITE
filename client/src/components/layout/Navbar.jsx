@@ -31,6 +31,27 @@ const Navbar = ({ onOpenAiChat }) => {
     { name: 'CONTACT', path: '/contact' },
   ];
 
+  const isLinkActive = (linkPath) => {
+    if (linkPath === '/') {
+      return location.pathname === '/';
+    }
+
+    if (linkPath.includes('?')) {
+      const [basePath, queryString] = linkPath.split('?');
+      return location.pathname === basePath && location.search.includes(queryString);
+    }
+
+    if (linkPath === '/shop') {
+      return (
+        location.pathname === '/shop' &&
+        !location.search.includes('sort=newest') &&
+        !location.search.includes('tab=categories')
+      );
+    }
+
+    return location.pathname === linkPath;
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-[#FFFDF8]/95 backdrop-blur-md border-b border-[#EAE1D2] shadow-sm transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -48,7 +69,7 @@ const Navbar = ({ onOpenAiChat }) => {
           {/* Desktop Navigation Links */}
           <nav className="hidden lg:flex items-center space-x-8">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
+              const isActive = isLinkActive(link.path);
               return (
                 <Link
                   key={link.name}
@@ -146,16 +167,23 @@ const Navbar = ({ onOpenAiChat }) => {
       {/* Mobile Drawer Navigation */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#F7F2E8] border-b border-[#EAE1D2] px-4 pt-2 pb-6 space-y-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-3 py-2 text-sm font-bold tracking-wider text-[#123D2A] hover:bg-[#FFFDF8] rounded-md"
-            >
-              {link.name}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const isActive = isLinkActive(link.path);
+            return (
+              <Link
+                key={link.name}
+                to={link.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`block px-3 py-2 text-sm font-bold tracking-wider rounded-md border-l-4 transition-colors ${
+                  isActive
+                    ? 'text-[#123D2A] bg-[#FFFDF8] border-[#C49A52]'
+                    : 'text-[#243229]/80 hover:bg-[#FFFDF8] border-transparent'
+                }`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
           <div className="pt-3 border-t border-[#EAE1D2] flex justify-around">
             <Link to="/wishlist" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-1.5 text-xs font-semibold text-[#123D2A]">
               <Heart className="w-4 h-4 text-[#C49A52]" /> Wishlist

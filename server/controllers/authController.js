@@ -599,3 +599,79 @@ module.exports = {
   loginUser,
   getMe,
 };
+// ============================================================
+// UPDATE CURRENT USER PROFILE
+// PUT /api/auth/profile
+// ============================================================
+const updateProfile = async (req, res, next) => {
+  try {
+    const {
+      name,
+      phone,
+      address,
+    } = req.body;
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return errorResponse(
+        res,
+        404,
+        'User not found'
+      );
+    }
+
+    // Update name
+    if (name !== undefined && name.trim()) {
+      user.name = name.trim();
+    }
+
+    // Update phone
+    if (phone !== undefined) {
+      user.phone = phone.trim();
+    }
+
+    // Update address
+    if (address) {
+      user.address = {
+        street:
+          address.street !== undefined
+            ? address.street.trim()
+            : user.address.street,
+
+        city:
+          address.city !== undefined
+            ? address.city.trim()
+            : user.address.city,
+
+        state:
+          address.state !== undefined
+            ? address.state.trim()
+            : user.address.state,
+
+        pincode:
+          address.pincode !== undefined
+            ? address.pincode.trim()
+            : user.address.pincode,
+      };
+    }
+
+    await user.save();
+
+    return successResponse(
+      res,
+      200,
+      'Profile updated successfully',
+      {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        address: user.address,
+      }
+    );
+  } catch (error) {
+    next(error);
+  }
+};

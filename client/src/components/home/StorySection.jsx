@@ -35,8 +35,8 @@ const StorySection = () => {
           <div className="lg:col-span-5 relative">
             <div className="rounded-3xl overflow-hidden shadow-2xl bg-[#EAE1D2] aspect-[4/3] sm:aspect-square">
               <img
-                src="https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80&w=1000"
-                alt="Ayurvedic mortar pestle and raw herbs"
+                src="/images/about-us.jpg"
+                alt="Ayurvedic mortar pestle and raw herbs preparation"
                 className="w-full h-full object-cover object-center"
               />
             </div>

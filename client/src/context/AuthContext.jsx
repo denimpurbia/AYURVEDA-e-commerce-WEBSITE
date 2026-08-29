@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from 'react';
+
 import API from '../services/api';
 
 const AuthContext = createContext();
@@ -7,9 +13,15 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ============================================================
+  // RESTORE USER SESSION
+  // ============================================================
+
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('ayurveda_user_token');
+      const token = localStorage.getItem(
+        'ayurveda_user_token'
+      );
 
       if (!token) {
         setUser(null);
@@ -23,12 +35,22 @@ export const AuthProvider = ({ children }) => {
         if (res.success && res.data) {
           setUser(res.data);
         } else {
-          localStorage.removeItem('ayurveda_user_token');
+          localStorage.removeItem(
+            'ayurveda_user_token'
+          );
+
           setUser(null);
         }
       } catch (error) {
-        console.warn('Failed to restore user session:', error.message);
-        localStorage.removeItem('ayurveda_user_token');
+        console.warn(
+          'Failed to restore user session:',
+          error.message
+        );
+
+        localStorage.removeItem(
+          'ayurveda_user_token'
+        );
+
         setUser(null);
       } finally {
         setLoading(false);
@@ -38,6 +60,10 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, []);
 
+  // ============================================================
+  // LOGIN
+  // ============================================================
+
   const login = async (email, password) => {
     try {
       const res = await API.post('/auth/login', {
@@ -45,7 +71,11 @@ export const AuthProvider = ({ children }) => {
         password,
       });
 
-      if (res.success && res.data && res.data.token) {
+      if (
+        res.success &&
+        res.data &&
+        res.data.token
+      ) {
         localStorage.setItem(
           'ayurveda_user_token',
           res.data.token
@@ -59,12 +89,23 @@ export const AuthProvider = ({ children }) => {
       throw error;
     }
   };
+
+  // ============================================================
+  // REGISTER
+  // ============================================================
 
   const register = async (userData) => {
     try {
-      const res = await API.post('/auth/register', userData);
+      const res = await API.post(
+        '/auth/register',
+        userData
+      );
 
-      if (res.success && res.data && res.data.token) {
+      if (
+        res.success &&
+        res.data &&
+        res.data.token
+      ) {
         localStorage.setItem(
           'ayurveda_user_token',
           res.data.token
@@ -79,8 +120,36 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // ============================================================
+  // UPDATE USER PROFILE
+  // ============================================================
+
+  const updateProfile = async (profileData) => {
+    try {
+      const res = await API.put(
+        '/auth/profile',
+        profileData
+      );
+
+      if (res.success && res.data) {
+        setUser(res.data);
+      }
+
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  // ============================================================
+  // LOGOUT
+  // ============================================================
+
   const logout = () => {
-    localStorage.removeItem('ayurveda_user_token');
+    localStorage.removeItem(
+      'ayurveda_user_token'
+    );
+
     setUser(null);
   };
 
@@ -91,6 +160,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
+        updateProfile,
         logout,
       }}
     >
@@ -99,4 +169,5 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () =>
+  useContext(AuthContext);

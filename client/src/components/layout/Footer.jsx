@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Phone, Mail, Clock, MapPin, Instagram, Facebook, Youtube, MessageCircle } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -22,20 +21,6 @@ const Footer = () => {
             <p className="text-xs text-[#7A6248] leading-relaxed font-medium">
               Bringing the wisdom of authentic Ayurveda to your everyday life with pure, chemical-free herbal formulations.
             </p>
-            <div className="flex items-center space-x-3 text-[#123D2A] pt-2">
-              <a href="#" className="w-8 h-8 rounded-full bg-[#F7F2E8] flex items-center justify-center hover:bg-[#123D2A] hover:text-white transition-colors">
-                <Instagram className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-[#F7F2E8] flex items-center justify-center hover:bg-[#123D2A] hover:text-white transition-colors">
-                <Facebook className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-[#F7F2E8] flex items-center justify-center hover:bg-[#123D2A] hover:text-white transition-colors">
-                <Youtube className="w-4 h-4" />
-              </a>
-              <a href="#" className="w-8 h-8 rounded-full bg-[#F7F2E8] flex items-center justify-center hover:bg-[#123D2A] hover:text-white transition-colors">
-                <MessageCircle className="w-4 h-4" />
-              </a>
-            </div>
           </div>
 
           {/* SHOP Column */}
@@ -84,42 +69,35 @@ const Footer = () => {
             <h4 className="text-xs font-bold tracking-widest text-[#123D2A] uppercase mb-4">
               CONTACT US
             </h4>
-            <ul className="space-y-3 text-xs text-[#7A6248] font-medium">
-              <li className="flex items-center space-x-2">
-                <Phone className="w-4 h-4 text-[#C49A52] shrink-0" />
-                <span>+91 98765 43210</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Mail className="w-4 h-4 text-[#C49A52] shrink-0" />
-                <span>hello@ayurvedamart.com</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <Clock className="w-4 h-4 text-[#C49A52] shrink-0" />
-                <span>Mon - Sun / 9AM - 8PM</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <MapPin className="w-4 h-4 text-[#C49A52] shrink-0" />
-                <span>New Delhi, India</span>
-              </li>
-            </ul>
+            <div className="space-y-3.5 text-xs font-medium">
+              <div>
+                <p className="font-bold text-[#123D2A]">Phone Support</p>
+                <a href="tel:+919876543210" className="text-[#7A6248] hover:text-[#123D2A] transition-colors block">
+                  +91 98765 43210
+                </a>
+              </div>
+
+              <div>
+                <p className="font-bold text-[#123D2A]">Email Us</p>
+                <a href="mailto:ayurvedamart2k26@gmail.com" className="text-[#7A6248] hover:text-[#123D2A] transition-colors block break-all">
+                  ayurvedamart2k26@gmail.com
+                </a>
+              </div>
+
+              <div>
+                <p className="font-bold text-[#123D2A]">Head Office</p>
+                <p className="text-[#7A6248] leading-relaxed">
+                  Court Choraya, Udaipur, Rajasthan - 313011
+                </p>
+              </div>
+            </div>
           </div>
 
         </div>
 
-        {/* Bottom Bar matching Reference Image */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-[#7A6248] font-medium">
+        {/* Bottom Bar */}
+        <div className="pt-8 text-center text-[11px] text-[#7A6248] font-medium">
           <p>© {new Date().getFullYear()} AyurvedaMart. All rights reserved.</p>
-          <div className="flex items-center space-x-3 bg-[#F7F2E8] px-4 py-1.5 rounded-full border border-[#EAE1D2]">
-            <span className="font-bold text-[#123D2A]">VISA</span>
-            <span>•</span>
-            <span className="font-bold text-[#123D2A]">Mastercard</span>
-            <span>•</span>
-            <span className="font-bold text-[#123D2A]">Paytm</span>
-            <span>•</span>
-            <span className="font-bold text-[#123D2A]">UPI</span>
-            <span>•</span>
-            <span className="font-bold text-[#123D2A]">COD</span>
-          </div>
         </div>
 
       </div>
