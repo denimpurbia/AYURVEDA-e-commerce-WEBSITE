@@ -42,7 +42,9 @@ const NewsletterSection = () => {
         setRating(5);
       }
     } catch (error) {
-      setMessage(error.message || 'Failed to submit review.');
+      setMessage(
+        error.message || 'Failed to submit review.'
+      );
     } finally {
       setLoading(false);
     }
@@ -51,9 +53,10 @@ const NewsletterSection = () => {
   return (
     <section className="py-16 bg-[#FFFDF8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
 
-          {/* REVIEW FORM */}
+          {/* LEFT REVIEW SECTION */}
           <div className="lg:col-span-6 bg-[#123D2A] text-white rounded-3xl p-8 sm:p-12 flex flex-col justify-between shadow-xl">
 
             <div className="space-y-4">
@@ -134,69 +137,77 @@ const NewsletterSection = () => {
             </form>
           </div>
 
+
           {/* RIGHT BRAND SECTION */}
-          <div className="lg:col-span-6 bg-[#F7F2E8] border border-[#EAE1D2] rounded-3xl p-8 sm:p-12 flex flex-col sm:flex-row items-center justify-between gap-8 shadow-card">
-
-            <div className="space-y-6 flex-1 text-center sm:text-left">
-
-              <div className="flex items-center space-x-3 justify-center sm:justify-start">
-                <Leaf className="w-6 h-6 text-[#789B72]" />
-
-                <div>
-                  <h4 className="text-xs font-bold text-[#123D2A] uppercase">
-                    NATURAL
-                  </h4>
-
-                  <p className="text-[11px] text-[#7A6248]">
-                    Always Natural, Always Pure
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3 justify-center sm:justify-start">
-                <Award className="w-6 h-6 text-[#C49A52]" />
-
-                <div>
-                  <h4 className="text-xs font-bold text-[#123D2A] uppercase">
-                    QUALITY
-                  </h4>
-
-                  <p className="text-[11px] text-[#7A6248]">
-                    Premium quality, best results
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3 justify-center sm:justify-start">
-                <Shield className="w-6 h-6 text-[#789B72]" />
-
-                <div>
-                  <h4 className="text-xs font-bold text-[#123D2A] uppercase">
-                    TRUST
-                  </h4>
-
-                  <p className="text-[11px] text-[#7A6248]">
-                    Trusted by thousands
-                  </p>
-                </div>
-              </div>
-
-            </div>
+          <div className="lg:col-span-6 bg-[#F7F2E8] border border-[#EAE1D2] rounded-3xl p-8 sm:p-10 shadow-card flex flex-col items-center justify-center">
 
             {/* IMAGE */}
-            <div className="w-48 bg-white p-3 rounded-lg shadow-md rotate-3 transform hover:rotate-0 transition-transform duration-300 shrink-0 border border-[#EAE1D2]">
+            <div className="w-full max-w-sm bg-white p-3 rounded-xl shadow-lg rotate-2 transform hover:rotate-0 transition-transform duration-300 border border-[#EAE1D2]">
 
-              <div className="aspect-[4/3] rounded overflow-hidden mb-2">
+              <div className="aspect-[16/10] rounded-lg overflow-hidden mb-3">
                 <img
-                  src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=400"
+                  src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=700"
                   alt="Ayurvedic wellness"
                   className="w-full h-full object-cover"
                 />
               </div>
 
-              <p className="text-[10px] font-serif font-bold text-center text-[#123D2A]">
+              <p className="text-xs font-serif font-bold text-center text-[#123D2A]">
                 Nature. Wellness. You.
               </p>
+
+            </div>
+
+
+            {/* BRAND FEATURES */}
+            <div className="grid grid-cols-3 gap-4 w-full mt-10">
+
+              {/* NATURAL */}
+              <div className="flex flex-col items-center text-center">
+                <Leaf className="w-6 h-6 text-[#789B72] mb-2" />
+
+                <h4 className="text-xs font-bold text-[#123D2A] uppercase">
+                  NATURAL
+                </h4>
+
+                <p className="text-[10px] text-[#7A6248] mt-1">
+                  Always Natural,
+                  <br />
+                  Always Pure
+                </p>
+              </div>
+
+
+              {/* QUALITY */}
+              <div className="flex flex-col items-center text-center">
+                <Award className="w-6 h-6 text-[#C49A52] mb-2" />
+
+                <h4 className="text-xs font-bold text-[#123D2A] uppercase">
+                  QUALITY
+                </h4>
+
+                <p className="text-[10px] text-[#7A6248] mt-1">
+                  Premium quality,
+                  <br />
+                  Best results
+                </p>
+              </div>
+
+
+              {/* TRUST */}
+              <div className="flex flex-col items-center text-center">
+                <Shield className="w-6 h-6 text-[#789B72] mb-2" />
+
+                <h4 className="text-xs font-bold text-[#123D2A] uppercase">
+                  TRUST
+                </h4>
+
+                <p className="text-[10px] text-[#7A6248] mt-1">
+                  Trusted by
+                  <br />
+                  Thousands
+                </p>
+              </div>
 
             </div>
 
