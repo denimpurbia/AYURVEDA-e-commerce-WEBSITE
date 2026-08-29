@@ -94,13 +94,21 @@ const ProductDetailsPage = () => {
   };
 
   const handleBuyNow = async () => {
-    try {
-      await addToCart(product, quantity);
-      navigate('/checkout');
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+  // Check if user is logged in
+  if (!user) {
+    alert('Please login first to continue your purchase');
+
+    navigate('/login');
+    return;
+  }
+
+  try {
+    await addToCart(product, quantity);
+    navigate('/checkout');
+  } catch (err) {
+    alert(err.message);
+  }
+};
 
   const handleReviewSubmit = async (e) => {
     e.preventDefault();
