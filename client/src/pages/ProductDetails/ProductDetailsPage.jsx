@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+
 import AnnouncementBar from '../../components/layout/AnnouncementBar';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
+
 import API from '../../services/api';
+
 import { useCart } from '../../context/CartContext';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
+
 import {
   Star,
   Heart,
@@ -33,6 +37,14 @@ const ProductDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [added, setAdded] = useState(false);
 
+  // Product Reviews
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  // ==========================================
+  // FETCH PRODUCT
+  // ==========================================
+
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
@@ -50,7 +62,7 @@ const ProductDetailsPage = () => {
           );
         }
       } catch (err) {
-        console.error(err);
+        console.error('Error loading product:', err);
       } finally {
         setLoading(false);
       }
@@ -58,6 +70,41 @@ const ProductDetailsPage = () => {
 
     fetchProduct();
   }, [slug]);
+
+  // ==========================================
+  // FETCH PRODUCT REVIEWS
+  // ==========================================
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      if (!product?._id) return;
+
+      setReviewsLoading(true);
+
+      try {
+        const res = await API.get(
+          `/product-reviews/product/${product._id}`
+        );
+
+        if (res.success && Array.isArray(res.data)) {
+          setReviews(res.data);
+        } else {
+          setReviews([]);
+        }
+      } catch (err) {
+        console.error('Error loading reviews:', err);
+        setReviews([]);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [product?._id]);
+
+  // ==========================================
+  // LOADING
+  // ==========================================
 
   if (loading) {
     return (
@@ -74,6 +121,10 @@ const ProductDetailsPage = () => {
       </div>
     );
   }
+
+  // ==========================================
+  // PRODUCT NOT FOUND
+  // ==========================================
 
   if (!product) {
     return (
@@ -108,6 +159,10 @@ const ProductDetailsPage = () => {
       ? product.price
       : null;
 
+  // ==========================================
+  // ADD TO CART
+  // ==========================================
+
   const handleAddToCart = async () => {
     try {
       await addToCart(product, quantity);
@@ -121,6 +176,10 @@ const ProductDetailsPage = () => {
       alert(err.message);
     }
   };
+
+  // ==========================================
+  // BUY NOW
+  // ==========================================
 
   const handleBuyNow = async () => {
     if (!user) {
@@ -149,7 +208,8 @@ const ProductDetailsPage = () => {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
 
-        {/* Back Link */}
+        {/* BACK LINK */}
+
         <button
           onClick={() => navigate(-1)}
           className="inline-flex items-center gap-1 text-xs font-bold text-[#7A6248] hover:text-[#123D2A] mb-6"
@@ -159,9 +219,12 @@ const ProductDetailsPage = () => {
           Back to Catalog
         </button>
 
+        {/* PRODUCT MAIN SECTION */}
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-16">
 
-          {/* Gallery Section */}
+          {/* PRODUCT GALLERY */}
+
           <div className="lg:col-span-6 space-y-4">
 
             <div className="aspect-square bg-[#F7F2E8] rounded-3xl overflow-hidden border border-[#EAE1D2] p-8 relative flex items-center justify-center">
@@ -187,7 +250,8 @@ const ProductDetailsPage = () => {
 
             </div>
 
-            {/* Thumbnail Images */}
+            {/* THUMBNAIL IMAGES */}
+
             {product.images &&
               product.images.length > 1 && (
 
@@ -197,9 +261,7 @@ const ProductDetailsPage = () => {
 
                     <button
                       key={idx}
-                      onClick={() =>
-                        setSelectedImage(img)
-                      }
+                      onClick={() => setSelectedImage(img)}
                       className={`w-20 h-20 rounded-xl bg-[#F7F2E8] border-2 p-2 overflow-hidden ${
                         selectedImage === img
                           ? 'border-[#123D2A]'
@@ -223,19 +285,26 @@ const ProductDetailsPage = () => {
 
           </div>
 
-          {/* Product Information */}
+          {/* PRODUCT INFORMATION */}
+
           <div className="lg:col-span-6 space-y-6">
 
             <div>
 
               <span className="text-xs font-bold tracking-widest text-[#789B72] uppercase block mb-1">
+
                 {product.category?.name ||
                   'Ayurvedic Formulation'}
+
               </span>
 
               <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#123D2A] leading-tight">
+
                 {product.name}
+
               </h1>
+
+              {/* PRODUCT RATING */}
 
               <div className="flex items-center space-x-3 mt-3">
 
@@ -246,10 +315,7 @@ const ProductDetailsPage = () => {
                     <Star
                       key={i}
                       className={`w-4 h-4 ${
-                        i <
-                        Math.floor(
-                          product.rating || 0
-                        )
+                        i < Math.floor(product.rating || 0)
                           ? 'fill-current'
                           : 'text-gray-300'
                       }`}
@@ -260,33 +326,41 @@ const ProductDetailsPage = () => {
                 </div>
 
                 <span className="text-xs font-bold text-[#123D2A]">
+
                   {product.rating || 0}
+
                 </span>
 
               </div>
 
             </div>
 
-            {/* Price */}
+            {/* PRICE */}
+
             <div className="p-4 bg-[#F7F2E8]/60 rounded-2xl border border-[#EAE1D2] flex items-center justify-between">
 
               <div>
 
                 <span className="font-serif text-3xl font-bold text-[#123D2A]">
+
                   ₹{price}
+
                 </span>
 
                 {originalPrice && (
 
                   <span className="text-sm text-gray-400 line-through ml-2">
+
                     ₹{originalPrice}
+
                   </span>
 
                 )}
 
                 <span className="block text-[10px] text-[#7A6248] font-medium mt-0.5">
-                  Inclusive of all taxes • Weight:{' '}
-                  {product.weight}
+
+                  Inclusive of all taxes • Weight: {product.weight}
+
                 </span>
 
               </div>
@@ -308,20 +382,26 @@ const ProductDetailsPage = () => {
                 </span>
 
                 <span className="block text-[10px] text-gray-400 mt-1">
+
                   SKU: {product.sku}
+
                 </span>
 
               </div>
 
             </div>
 
-            {/* Description */}
+            {/* SHORT DESCRIPTION */}
+
             <p className="text-sm text-[#243229]/80 leading-relaxed">
+
               {product.shortDescription ||
                 product.description}
+
             </p>
 
-            {/* Quantity and Buttons */}
+            {/* QUANTITY AND BUTTONS */}
+
             {product.stock > 0 && (
 
               <div className="space-y-4 pt-2">
@@ -329,7 +409,9 @@ const ProductDetailsPage = () => {
                 <div className="flex items-center space-x-4">
 
                   <span className="text-xs font-bold text-[#123D2A]">
+
                     Quantity:
+
                   </span>
 
                   <div className="flex items-center border border-[#EAE1D2] rounded-full bg-[#FFFDF8]">
@@ -337,19 +419,20 @@ const ProductDetailsPage = () => {
                     <button
                       onClick={() =>
                         setQuantity(
-                          Math.max(
-                            1,
-                            quantity - 1
-                          )
+                          Math.max(1, quantity - 1)
                         )
                       }
                       className="p-2 hover:bg-[#F7F2E8] rounded-l-full text-[#123D2A]"
                     >
+
                       <Minus className="w-3.5 h-3.5" />
+
                     </button>
 
                     <span className="px-4 text-xs font-bold text-[#123D2A]">
+
                       {quantity}
+
                     </span>
 
                     <button
@@ -363,7 +446,9 @@ const ProductDetailsPage = () => {
                       }
                       className="p-2 hover:bg-[#F7F2E8] rounded-r-full text-[#123D2A]"
                     >
+
                       <Plus className="w-3.5 h-3.5" />
+
                     </button>
 
                   </div>
@@ -382,9 +467,13 @@ const ProductDetailsPage = () => {
                   >
 
                     {added ? (
+
                       <Check className="w-4 h-4" />
+
                     ) : (
+
                       <ShoppingBag className="w-4 h-4 text-[#C49A52]" />
+
                     )}
 
                     {added
@@ -397,7 +486,9 @@ const ProductDetailsPage = () => {
                     onClick={handleBuyNow}
                     className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full text-xs font-bold tracking-widest bg-[#C49A52] text-[#0B2D1E] hover:bg-[#123D2A] hover:text-white transition-all shadow-md"
                   >
+
                     BUY NOW
+
                   </button>
 
                 </div>
@@ -406,7 +497,8 @@ const ProductDetailsPage = () => {
 
             )}
 
-            {/* Delivery Guarantees */}
+            {/* DELIVERY GUARANTEES */}
+
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-[#EAE1D2]">
 
               <div className="flex items-center space-x-2 text-xs font-medium text-[#7A6248]">
@@ -435,7 +527,8 @@ const ProductDetailsPage = () => {
 
         </div>
 
-        {/* Product Details */}
+        {/* PRODUCT DETAILS */}
+
         <div className="bg-[#F7F2E8]/40 rounded-3xl p-8 sm:p-12 border border-[#EAE1D2] space-y-8 mb-16">
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -443,11 +536,15 @@ const ProductDetailsPage = () => {
             <div className="space-y-3">
 
               <h3 className="font-serif font-bold text-xl text-[#123D2A]">
+
                 Description
+
               </h3>
 
               <p className="text-xs sm:text-sm text-[#243229]/80 leading-relaxed whitespace-pre-line">
+
                 {product.description}
+
               </p>
 
             </div>
@@ -458,7 +555,9 @@ const ProductDetailsPage = () => {
                 <div className="space-y-3">
 
                   <h3 className="font-serif font-bold text-xl text-[#123D2A]">
+
                     Key Ingredients
+
                   </h3>
 
                   <div className="flex flex-wrap gap-2">
@@ -470,7 +569,9 @@ const ProductDetailsPage = () => {
                           key={i}
                           className="px-3 py-1 bg-[#FFFDF8] border border-[#789B72]/40 rounded-full text-xs font-semibold text-[#123D2A]"
                         >
+
                           🌿 {ing}
+
                         </span>
 
                       )
@@ -489,7 +590,9 @@ const ProductDetailsPage = () => {
             <div>
 
               <h4 className="font-bold text-xs text-[#123D2A] uppercase mb-1">
+
                 Key Benefits
+
               </h4>
 
               <ul className="text-xs text-[#7A6248] space-y-1 list-disc list-inside font-medium">
@@ -510,11 +613,15 @@ const ProductDetailsPage = () => {
             <div>
 
               <h4 className="font-bold text-xs text-[#123D2A] uppercase mb-1">
+
                 How to Use
+
               </h4>
 
               <p className="text-xs text-[#7A6248] font-medium">
+
                 {product.usage}
+
               </p>
 
             </div>
@@ -522,11 +629,15 @@ const ProductDetailsPage = () => {
             <div>
 
               <h4 className="font-bold text-xs text-[#123D2A] uppercase mb-1">
+
                 Storage
+
               </h4>
 
               <p className="text-xs text-[#7A6248] font-medium">
+
                 {product.storageInstructions}
+
               </p>
 
             </div>
@@ -534,6 +645,208 @@ const ProductDetailsPage = () => {
           </div>
 
         </div>
+
+        {/* ========================================== */}
+        {/* CUSTOMER REVIEWS */}
+        {/* ========================================== */}
+
+        <section className="mb-16">
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+
+            <div>
+
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#123D2A]">
+
+                Customer Reviews
+
+              </h2>
+
+              <p className="text-sm text-[#7A6248] mt-1">
+
+                Reviews from verified customers who purchased this product.
+
+              </p>
+
+            </div>
+
+            <div className="px-4 py-2 rounded-full bg-[#F7F2E8] border border-[#EAE1D2] w-fit">
+
+              <span className="text-sm font-bold text-[#123D2A]">
+
+                {reviews.length} Reviews
+
+              </span>
+
+            </div>
+
+          </div>
+
+          {/* LOADING REVIEWS */}
+
+          {reviewsLoading ? (
+
+            <div className="text-center py-10">
+
+              <div className="w-8 h-8 border-4 border-[#123D2A] border-t-transparent rounded-full animate-spin mx-auto" />
+
+              <p className="mt-3 text-sm text-[#7A6248]">
+
+                Loading reviews...
+
+              </p>
+
+            </div>
+
+          ) : reviews.length === 0 ? (
+
+            /* NO REVIEWS */
+
+            <div className="p-8 bg-[#F7F2E8]/60 rounded-3xl border border-[#EAE1D2] text-center">
+
+              <Star className="w-8 h-8 text-[#C49A52] mx-auto mb-3" />
+
+              <h3 className="font-serif text-lg font-bold text-[#123D2A]">
+
+                No Reviews Yet
+
+              </h3>
+
+              <p className="text-sm text-[#7A6248] mt-2">
+
+                Be the first verified customer to share your experience.
+
+              </p>
+
+            </div>
+
+          ) : (
+
+            /* REVIEW LIST */
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+              {reviews.map((review) => (
+
+                <div
+                  key={review._id}
+                  className="p-6 bg-[#F7F2E8]/60 rounded-3xl border border-[#EAE1D2]"
+                >
+
+                  {/* REVIEW HEADER */}
+
+                  <div className="flex items-start justify-between gap-4">
+
+                    <div>
+
+                      <h3 className="font-bold text-[#123D2A]">
+
+                        {review.user?.name ||
+                          'Verified Customer'}
+
+                      </h3>
+
+                      {review.verifiedBuyer && (
+
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 mt-1">
+
+                          <Check className="w-3 h-3" />
+
+                          VERIFIED BUYER
+
+                        </span>
+
+                      )}
+
+                    </div>
+
+                    <span className="text-xs text-[#7A6248]">
+
+                      {review.createdAt
+                        ? new Date(
+                            review.createdAt
+                          ).toLocaleDateString()
+                        : ''}
+
+                    </span>
+
+                  </div>
+
+                  {/* STARS */}
+
+                  <div className="flex items-center gap-1 text-amber-500 mt-4">
+
+                    {[1, 2, 3, 4, 5].map(
+                      (star) => (
+
+                        <Star
+                          key={star}
+                          className={`w-4 h-4 ${
+                            star <= review.rating
+                              ? 'fill-current'
+                              : 'text-gray-300'
+                          }`}
+                        />
+
+                      )
+                    )}
+
+                  </div>
+
+                  {/* COMMENT */}
+
+                  <p className="text-sm text-[#243229]/80 leading-relaxed mt-4">
+
+                    {review.comment}
+
+                  </p>
+
+                  {/* REVIEW IMAGES */}
+
+                  {review.images &&
+                    review.images.length > 0 && (
+
+                      <div className="flex flex-wrap gap-3 mt-4">
+
+                        {review.images.map(
+                          (image, index) => (
+
+                            <img
+                              key={index}
+                              src={
+                                image.startsWith('http')
+                                  ? image
+                                  : `${
+                                      (
+                                        import.meta.env
+                                          .VITE_API_URL ||
+                                        'http://localhost:5000/api'
+                                      ).replace(
+                                        '/api',
+                                        ''
+                                      )
+                                    }${image}`
+                              }
+                              alt="Customer review"
+                              className="w-20 h-20 object-cover rounded-xl border border-[#EAE1D2]"
+                            />
+
+                          )
+                        )}
+
+                      </div>
+
+                    )}
+
+                </div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </section>
 
       </main>
 
