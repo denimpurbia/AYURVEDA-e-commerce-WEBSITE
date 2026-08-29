@@ -31,7 +31,6 @@ const getMyProfile = async (req, res, next) => {
   }
 };
 
-
 // @desc    Update logged-in user profile
 // @route   PUT /api/users/profile
 // @access  Private/User
@@ -43,23 +42,16 @@ const updateMyProfile = async (req, res, next) => {
       return errorResponse(res, 404, 'User not found');
     }
 
-    const {
-      name,
-      phone,
-      address,
-    } = req.body;
+    const { name, phone, address } = req.body;
 
-    // Update Name
     if (name !== undefined) {
       user.name = name.trim();
     }
 
-    // Update Phone
     if (phone !== undefined) {
       user.phone = phone.trim();
     }
 
-    // Update Address
     if (address) {
       user.address = {
         street: address.street || '',
@@ -85,12 +77,11 @@ const updateMyProfile = async (req, res, next) => {
   }
 };
 
-
 // ==========================================
 // ADMIN USERS
 // ==========================================
 
-// @desc    Get all registered users (Admin)
+// @desc    Get all registered users
 // @route   GET /api/users
 // @access  Private/Admin
 const getAllUsers = async (req, res, next) => {
@@ -110,8 +101,7 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
-
-// @desc    Update user active status (Admin)
+// @desc    Update user active status
 // @route   PUT /api/users/:id/status
 // @access  Private/Admin
 const updateUserStatus = async (req, res, next) => {
@@ -159,7 +149,6 @@ const updateUserStatus = async (req, res, next) => {
   }
 };
 
-
 // ==========================================
 // ADMIN DASHBOARD
 // ==========================================
@@ -169,92 +158,83 @@ const updateUserStatus = async (req, res, next) => {
 // @access  Private/Admin
 const getDashboardStats = async (req, res, next) => {
   try {
+    // Total Users
     const totalUsers = await User.countDocuments({
       role: 'user',
     });
 
-    const totalProducts =
-      await Product.countDocuments();
+    // Total Products
+    const totalProducts = await Product.countDocuments();
 
-    const totalOrders =
-      await Order.countDocuments();
+    // Total Orders
+    const totalOrders = await Order.countDocuments();
 
-    // Revenue calculation
-    const revenueResult =
-      await Order.aggregate([
-        {
-          $match: {
-            orderStatus: {
-              $ne: 'Cancelled',
-            },
+    // Total Revenue
+    const revenueResult = await Order.aggregate([
+      {
+        $match: {
+          orderStatus: {
+            $ne: 'Cancelled',
           },
         },
-        {
-          $group: {
-            _id: null,
-            totalRevenue: {
-              $sum: '$totalAmount',
-            },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: {
+            $sum: '$totalAmount',
           },
         },
-      ]);
+      },
+    ]);
 
     const totalRevenue =
       revenueResult.length > 0
         ? revenueResult[0].totalRevenue
         : 0;
 
-    // Recent orders
+    // Recent Orders
     const recentOrders = await Order.find()
       .populate('user', 'name email')
       .sort({ createdAt: -1 })
       .limit(6);
 
-    // Low stock products
-    const lowStockProducts =
-      await Product.find({
-        stock: { $lt: 10 },
-        isActive: true,
-      })
-        .populate('category', 'name')
-        .limit(6);
+    // Low Stock Products
+    const lowStockProducts = await Product.find({
+      stock: { $lt: 10 },
+      isActive: true,
+    })
+      .populate('category', 'name')
+      .limit(6);
 
-    // Recent reviews
-    const recentReviews = await Review.find()
-      .populate('user', 'name')
-      .populate('product', 'name')
-      .sort({ createdAt: -1 })
-      .limit(5);
-
-    // Monthly sales chart
-    const salesChart =
-      await Order.aggregate([
-        {
-          $match: {
-            orderStatus: {
-              $ne: 'Cancelled',
-            },
+    // Monthly Sales Chart
+    const salesChart = await Order.aggregate([
+      {
+        $match: {
+          orderStatus: {
+            $ne: 'Cancelled',
           },
         },
-        {
-          $group: {
-            _id: {
-              $month: '$createdAt',
-            },
-            sales: {
-              $sum: '$totalAmount',
-            },
-            count: {
-              $sum: 1,
-            },
+      },
+      {
+        $group: {
+          _id: {
+            $month: '$createdAt',
+          },
+          sales: {
+            $sum: '$totalAmount',
+          },
+          count: {
+            $sum: 1,
           },
         },
-        {
-          $sort: {
-            _id: 1,
-          },
+      },
+      {
+        $sort: {
+          _id: 1,
         },
-      ]);
+      },
+    ]);
 
     const monthsMap = [
       'Jan',
@@ -271,19 +251,16 @@ const getDashboardStats = async (req, res, next) => {
       'Dec',
     ];
 
-    const formattedChartData =
-      salesChart.map((item) => ({
-        name:
-          monthsMap[item._id - 1] ||
-          `Month ${item._id}`,
-        revenue: item.sales,
-        orders: item.count,
-      }));
+    const formattedChartData = salesChart.map((item) => ({
+      name: monthsMap[item._id - 1] || `Month ${item._id}`,
+      revenue: item.sales,
+      orders: item.count,
+    }));
 
     return successResponse(
       res,
       200,
-      'Dashboard statistics fetched',
+      'Dashboard statistics fetched successfully',
       {
         totalUsers,
         totalProducts,
@@ -291,8 +268,6 @@ const getDashboardStats = async (req, res, next) => {
         totalRevenue,
         recentOrders,
         lowStockProducts,
-        recentReviews,
-
         salesChart:
           formattedChartData.length > 0
             ? formattedChartData
@@ -321,10 +296,10 @@ const getDashboardStats = async (req, res, next) => {
       }
     );
   } catch (error) {
+    console.error('Dashboard Stats Error:', error);
     next(error);
   }
 };
-
 
 // ==========================================
 // EXPORTS
