@@ -58,7 +58,7 @@ const fileFilter = (req, file, cb) => {
       )
     );
   }
-});
+};
 
 // Multer configuration
 const uploadReviewImages = multer({
