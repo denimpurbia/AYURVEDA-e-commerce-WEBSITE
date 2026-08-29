@@ -7,10 +7,15 @@ const {
   errorResponse,
 } = require('../utils/apiResponse');
 
+
 // ==========================================
 // CUSTOMER: CREATE PRODUCT REVIEW
 // ==========================================
 // POST /api/product-reviews
+//
+// Only the user who purchased AND received
+// the product can submit a review.
+// ==========================================
 
 const createProductReview = async (req, res, next) => {
   try {
@@ -30,8 +35,8 @@ const createProductReview = async (req, res, next) => {
       );
     }
 
-    // Check rating
-    if (rating < 1 || rating > 5) {
+    // Validate rating
+    if (Number(rating) < 1 || Number(rating) > 5) {
       return errorResponse(
         res,
         400,
@@ -39,7 +44,7 @@ const createProductReview = async (req, res, next) => {
       );
     }
 
-    // Find order
+    // Find the order belonging to logged-in user
     const order = await Order.findOne({
       _id: orderId,
       user: req.user._id,
@@ -53,16 +58,16 @@ const createProductReview = async (req, res, next) => {
       );
     }
 
-    // Product must be delivered
+    // Review allowed only after delivery
     if (order.orderStatus !== 'Delivered') {
       return errorResponse(
         res,
         400,
-        'You can review this product only after delivery'
+        'You can review this product only after it has been delivered'
       );
     }
 
-    // Check product belongs to this order
+    // Check that this product exists in the order
     const productExistsInOrder = order.items.some(
       (item) =>
         item.product &&
@@ -73,7 +78,7 @@ const createProductReview = async (req, res, next) => {
       return errorResponse(
         res,
         400,
-        'This product does not belong to this order'
+        'This product does not belong to your order'
       );
     }
 
@@ -88,12 +93,11 @@ const createProductReview = async (req, res, next) => {
       );
     }
 
-    // Check duplicate review
+    // One user can review one product only once
     const alreadyReviewed =
       await ProductReview.findOne({
         user: req.user._id,
         product: productId,
-        order: orderId,
       });
 
     if (alreadyReviewed) {
@@ -104,7 +108,7 @@ const createProductReview = async (req, res, next) => {
       );
     }
 
-    // Get uploaded images
+    // Uploaded review images
     const images = req.files
       ? req.files.map(
           (file) =>
@@ -113,18 +117,18 @@ const createProductReview = async (req, res, next) => {
       : [];
 
     // Create review
-    const review =
-      await ProductReview.create({
-        user: req.user._id,
-        product: productId,
-        order: orderId,
-        rating: Number(rating),
-        comment: comment.trim(),
-        images,
-        verifiedBuyer: true,
-        status: 'pending',
-      });
+    // No admin approval required
+    const review = await ProductReview.create({
+      user: req.user._id,
+      product: productId,
+      order: orderId,
+      rating: Number(rating),
+      comment: comment.trim(),
+      images,
+      verifiedBuyer: true,
+    });
 
+    // Populate user and product information
     const populatedReview =
       await ProductReview.findById(review._id)
         .populate('user', 'name')
@@ -136,9 +140,10 @@ const createProductReview = async (req, res, next) => {
     return successResponse(
       res,
       201,
-      'Product review submitted successfully and is waiting for admin approval',
+      'Product review submitted successfully',
       populatedReview
     );
+
   } catch (error) {
     next(error);
   }
@@ -146,9 +151,13 @@ const createProductReview = async (req, res, next) => {
 
 
 // ==========================================
-// PUBLIC: GET PRODUCT APPROVED REVIEWS
+// PUBLIC: GET PRODUCT REVIEWS
 // ==========================================
 // GET /api/product-reviews/product/:productId
+//
+// All submitted genuine buyer reviews
+// are shown directly.
+// ==========================================
 
 const getProductReviews = async (
   req,
@@ -159,7 +168,6 @@ const getProductReviews = async (
     const reviews =
       await ProductReview.find({
         product: req.params.productId,
-        status: 'approved',
       })
         .populate('user', 'name')
         .sort({ createdAt: -1 });
@@ -170,6 +178,7 @@ const getProductReviews = async (
       'Product reviews retrieved successfully',
       reviews
     );
+
   } catch (error) {
     next(error);
   }
@@ -177,124 +186,9 @@ const getProductReviews = async (
 
 
 // ==========================================
-// ADMIN: GET ALL PRODUCT REVIEWS
+// DELETE OWN REVIEW
 // ==========================================
-// GET /api/product-reviews/admin/all
-
-const getAllProductReviews = async (
-  req,
-  res,
-  next
-) => {
-  try {
-    const reviews =
-      await ProductReview.find()
-        .populate(
-          'user',
-          'name email'
-        )
-        .populate(
-          'product',
-          'name images'
-        )
-        .populate(
-          'order',
-          'trackingNumber orderStatus'
-        )
-        .sort({ createdAt: -1 });
-
-    return successResponse(
-      res,
-      200,
-      'All product reviews retrieved successfully',
-      reviews
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// ==========================================
-// ADMIN: APPROVE PRODUCT REVIEW
-// ==========================================
-
-const approveProductReview = async (
-  req,
-  res,
-  next
-) => {
-  try {
-    const review =
-      await ProductReview.findById(
-        req.params.id
-      );
-
-    if (!review) {
-      return errorResponse(
-        res,
-        404,
-        'Product review not found'
-      );
-    }
-
-    review.status = 'approved';
-
-    await review.save();
-
-    return successResponse(
-      res,
-      200,
-      'Product review approved successfully',
-      review
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// ==========================================
-// ADMIN: REJECT PRODUCT REVIEW
-// ==========================================
-
-const rejectProductReview = async (
-  req,
-  res,
-  next
-) => {
-  try {
-    const review =
-      await ProductReview.findById(
-        req.params.id
-      );
-
-    if (!review) {
-      return errorResponse(
-        res,
-        404,
-        'Product review not found'
-      );
-    }
-
-    review.status = 'rejected';
-
-    await review.save();
-
-    return successResponse(
-      res,
-      200,
-      'Product review rejected successfully',
-      review
-    );
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// ==========================================
-// ADMIN: DELETE PRODUCT REVIEW
+// DELETE /api/product-reviews/:id
 // ==========================================
 
 const deleteProductReview = async (
@@ -304,15 +198,16 @@ const deleteProductReview = async (
 ) => {
   try {
     const review =
-      await ProductReview.findById(
-        req.params.id
-      );
+      await ProductReview.findOne({
+        _id: req.params.id,
+        user: req.user._id,
+      });
 
     if (!review) {
       return errorResponse(
         res,
         404,
-        'Product review not found'
+        'Review not found'
       );
     }
 
@@ -321,8 +216,9 @@ const deleteProductReview = async (
     return successResponse(
       res,
       200,
-      'Product review deleted successfully'
+      'Review deleted successfully'
     );
+
   } catch (error) {
     next(error);
   }
@@ -336,8 +232,5 @@ const deleteProductReview = async (
 module.exports = {
   createProductReview,
   getProductReviews,
-  getAllProductReviews,
-  approveProductReview,
-  rejectProductReview,
   deleteProductReview,
 };
