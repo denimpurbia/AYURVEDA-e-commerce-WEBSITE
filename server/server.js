@@ -15,14 +15,23 @@ const {
   errorHandler,
 } = require('./middleware/errorMiddleware');
 
-// Route Imports
+// ==========================================
+// ROUTE IMPORTS
+// ==========================================
+
 const authRoutes = require('./routes/authRoutes');
 const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+
+// General Website Reviews
 const reviewRoutes = require('./routes/reviewRoutes');
+
+// Product Reviews
+const productReviewRoutes = require('./routes/productReviewRoutes');
+
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const contactRoutes = require('./routes/contactRoutes');
@@ -123,7 +132,9 @@ const corsOptions = {
 
     console.warn(`CORS blocked origin: ${origin}`);
 
-    return callback(new Error('Not allowed by CORS'));
+    return callback(
+      new Error('Not allowed by CORS')
+    );
   },
 
   credentials: true,
@@ -180,6 +191,7 @@ const globalLimiter = rateLimit({
   limit: 300,
 
   standardHeaders: 'draft-8',
+
   legacyHeaders: false,
 
   message: {
@@ -201,6 +213,7 @@ const authLimiter = rateLimit({
   limit: 30,
 
   standardHeaders: 'draft-8',
+
   legacyHeaders: false,
 
   message: {
@@ -240,22 +253,45 @@ app.get('/api/health', (req, res) => {
    API ROUTES
 ============================================================ */
 
+// Authentication
 app.use('/api/auth', authRoutes);
 
+// Products
 app.use('/api/products', productRoutes);
 
+// Categories
 app.use('/api/categories', categoryRoutes);
 
+// Cart
 app.use('/api/cart', cartRoutes);
 
+// Wishlist
 app.use('/api/wishlist', wishlistRoutes);
 
+// Orders
 app.use('/api/orders', orderRoutes);
+
+// ==========================================
+// GENERAL WEBSITE REVIEWS
+// Existing review system - DO NOT REMOVE
+// ==========================================
 
 app.use('/api/reviews', reviewRoutes);
 
+// ==========================================
+// PRODUCT REVIEWS
+// New separate product review system
+// ==========================================
+
+app.use(
+  '/api/product-reviews',
+  productReviewRoutes
+);
+
+// Users
 app.use('/api/users', userRoutes);
 
+// Chat
 app.use('/api/chat', chatRoutes);
 
 // Contact Messages
