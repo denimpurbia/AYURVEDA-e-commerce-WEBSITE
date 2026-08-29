@@ -1,5 +1,6 @@
 import React from 'react';
-import { Bot, Search, Wallet, ShoppingCart, Truck, ArrowRight } from 'lucide-react';
+import { Bot, Search, Wallet, ShoppingCart, Truck } from 'lucide-react';
+import aiAssistantImg from '../../assets/ai-assistant-banner.png';
 
 const AiBanner = ({ onOpenAiChat }) => {
   const features = [
@@ -26,14 +27,14 @@ const AiBanner = ({ onOpenAiChat }) => {
   ];
 
   return (
-    <section className="py-12 bg-[#FFFDF8]">
+    <section className="py-6 sm:py-8 bg-[#FFFDF8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#0B2D1E] via-[#123D2A] to-[#0B2D1E] text-white p-8 sm:p-12 shadow-2xl border border-[#789B72]/30">
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-[#0B2D1E] via-[#123D2A] to-[#0B2D1E] text-white p-6 sm:p-8 lg:p-10 shadow-2xl border border-[#789B72]/30">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 items-center relative z-10">
             
             {/* Left Header & Features */}
-            <div className="lg:col-span-8 space-y-6">
+            <div className="lg:col-span-6 space-y-5">
               <div className="space-y-2">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C49A52]/20 text-[#C49A52] text-xs font-bold tracking-widest uppercase">
                   <Bot className="w-4 h-4 text-[#C49A52]" />
@@ -43,12 +44,12 @@ const AiBanner = ({ onOpenAiChat }) => {
                   MEET AYURVEDA AI
                 </h2>
                 <p className="text-sm text-emerald-100/90 font-medium">
-                  Your personal Ayurvedic shopping assistant.
+                  Your personal Ayurvedic shopping assistant. Click the assistant to start chatting!
                 </p>
               </div>
 
               {/* 4 Capability Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
                 {features.map((f, i) => {
                   const Icon = f.icon;
                   return (
@@ -62,20 +63,19 @@ const AiBanner = ({ onOpenAiChat }) => {
               </div>
             </div>
 
-            {/* Right Action Button & AI Bot Avatar matching Reference Image */}
-            <div className="lg:col-span-4 flex flex-col items-center lg:items-end justify-center space-y-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#C49A52] to-[#789B72] p-1 shadow-lg animate-pulse">
-                <div className="w-full h-full rounded-full bg-[#0B2D1E] flex items-center justify-center text-[#C49A52]">
-                  <Bot className="w-10 h-10" />
-                </div>
-              </div>
-
+            {/* Right Clickable AI Mascot Image */}
+            <div className="lg:col-span-6 flex items-center justify-center lg:justify-center">
               <button
+                type="button"
                 onClick={onOpenAiChat}
-                className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#FFFDF8] text-[#123D2A] text-xs font-bold tracking-widest rounded-full hover:bg-[#C49A52] hover:text-white transition-all shadow-xl group"
+                title="Click to chat with Ayurveda AI"
+                className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg group cursor-pointer focus:outline-none transition-transform duration-300 hover:scale-105 active:scale-95 flex items-center justify-center"
               >
-                CHAT WITH AI ASSISTANT
-                <ArrowRight className="w-4 h-4 text-[#123D2A] group-hover:text-white group-hover:translate-x-1 transition-transform" />
+                <img
+                  src={aiAssistantImg}
+                  alt="Ayurveda AI Assistant - Click to Chat"
+                  className="w-full h-auto max-h-80 sm:max-h-96 lg:max-h-[420px] object-contain drop-shadow-2xl transition-all duration-300 group-hover:brightness-110"
+                />
               </button>
             </div>
 
