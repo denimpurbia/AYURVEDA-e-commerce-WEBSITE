@@ -1,10 +1,11 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Camera,
   ImagePlus,
   X,
   Upload,
+  RefreshCw,
 } from 'lucide-react';
 
 const ProductReviewPage = () => {
@@ -12,11 +13,141 @@ const ProductReviewPage = () => {
   const navigate = useNavigate();
 
   const fileInputRef = useRef(null);
-  const cameraInputRef = useRef(null);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
+
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [stream, setStream] = useState(null);
+  const [cameraError, setCameraError] = useState('');
+
+  // Stop camera
+  const stopCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
+
+    setStream(null);
+    setCameraOpen(false);
+  };
+
+  // Open real camera
+  const openCamera = async () => {
+    try {
+      setCameraError('');
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        setCameraError(
+          'Camera is not supported in this browser.'
+        );
+        return;
+      }
+
+      const mediaStream =
+        await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: {
+              ideal: 'environment',
+            },
+          },
+          audio: false,
+        });
+
+      setStream(mediaStream);
+      setCameraOpen(true);
+    } catch (error) {
+      console.error('Camera error:', error);
+
+      if (error.name === 'NotAllowedError') {
+        setCameraError(
+          'Camera permission denied. Please allow camera access in your browser.'
+        );
+      } else if (error.name === 'NotFoundError') {
+        setCameraError(
+          'No camera was found on this device.'
+        );
+      } else {
+        setCameraError(
+          'Unable to access camera. Please try again.'
+        );
+      }
+    }
+  };
+
+  // Attach stream to video
+  useEffect(() => {
+    if (cameraOpen && stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [cameraOpen, stream]);
+
+  // Cleanup camera when leaving page
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          track.stop();
+        });
+      }
+    };
+  }, [stream]);
+
+  // Capture photo from camera
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    if (!video || !canvas) {
+      return;
+    }
+
+    const width = video.videoWidth;
+    const height = video.videoHeight;
+
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      width,
+      height
+    );
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+
+        const file = new File(
+          [blob],
+          `review-camera-${Date.now()}.jpg`,
+          {
+            type: 'image/jpeg',
+          }
+        );
+
+        const imageUrl =
+          URL.createObjectURL(file);
+
+        setSelectedImage({
+          file,
+          preview: imageUrl,
+        });
+
+        stopCamera();
+      },
+      'image/jpeg',
+      0.9
+    );
+  };
 
   // Select image from gallery
   const handleImageChange = (e) => {
@@ -29,7 +160,8 @@ const ProductReviewPage = () => {
       return;
     }
 
-    const imageUrl = URL.createObjectURL(file);
+    const imageUrl =
+      URL.createObjectURL(file);
 
     setSelectedImage({
       file,
@@ -42,15 +174,12 @@ const ProductReviewPage = () => {
     fileInputRef.current?.click();
   };
 
-  // Open camera
-  const openCamera = () => {
-    cameraInputRef.current?.click();
-  };
-
   // Remove selected image
   const removeImage = () => {
     if (selectedImage?.preview) {
-      URL.revokeObjectURL(selectedImage.preview);
+      URL.revokeObjectURL(
+        selectedImage.preview
+      );
     }
 
     setSelectedImage(null);
@@ -58,12 +187,9 @@ const ProductReviewPage = () => {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-
-    if (cameraInputRef.current) {
-      cameraInputRef.current.value = '';
-    }
   };
 
+  // Submit review
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -105,21 +231,25 @@ const ProductReviewPage = () => {
             </label>
 
             <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  className={`text-3xl transition-transform hover:scale-110 ${
-                    star <= rating
-                      ? 'text-[#C9A452]'
-                      : 'text-gray-300'
-                  }`}
-                  aria-label={`Rate ${star} stars`}
-                >
-                  ★
-                </button>
-              ))}
+              {[1, 2, 3, 4, 5].map(
+                (star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() =>
+                      setRating(star)
+                    }
+                    className={`text-3xl transition-transform hover:scale-110 ${
+                      star <= rating
+                        ? 'text-[#C9A452]'
+                        : 'text-gray-300'
+                    }`}
+                    aria-label={`Rate ${star} stars`}
+                  >
+                    ★
+                  </button>
+                )
+              )}
             </div>
           </div>
 
@@ -131,7 +261,9 @@ const ProductReviewPage = () => {
 
             <textarea
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
+              onChange={(e) =>
+                setComment(e.target.value)
+              }
               required
               rows="6"
               placeholder="Tell us about your experience..."
@@ -143,12 +275,13 @@ const ProductReviewPage = () => {
           <div className="mb-6">
             <label className="block text-sm font-bold text-[#123D2A] mb-3">
               Add a Photo
+
               <span className="ml-2 font-normal text-[#7A6248]">
                 (Optional)
               </span>
             </label>
 
-            {/* Hidden Gallery Input */}
+            {/* Gallery Input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -157,20 +290,62 @@ const ProductReviewPage = () => {
               className="hidden"
             />
 
-            {/* Hidden Camera Input */}
-            <input
-              ref={cameraInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleImageChange}
+            {/* Hidden Canvas */}
+            <canvas
+              ref={canvasRef}
               className="hidden"
             />
 
-            {!selectedImage ? (
+            {/* CAMERA PREVIEW */}
+            {cameraOpen && (
+              <div className="mb-4 border border-[#EAE1D2] rounded-xl p-3">
+
+                <div className="overflow-hidden rounded-xl bg-black">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-72 object-cover"
+                  />
+                </div>
+
+                <div className="flex gap-3 mt-4">
+
+                  <button
+                    type="button"
+                    onClick={stopCamera}
+                    className="flex-1 border border-[#123D2A] text-[#123D2A] py-3 rounded-full font-bold"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={capturePhoto}
+                    className="flex-1 bg-[#123D2A] text-white py-3 rounded-full font-bold flex items-center justify-center gap-2"
+                  >
+                    <Camera className="w-5 h-5" />
+
+                    Capture Photo
+                  </button>
+
+                </div>
+
+              </div>
+            )}
+
+            {/* CAMERA ERROR */}
+            {cameraError && (
+              <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+                {cameraError}
+              </div>
+            )}
+
+            {/* SELECT OPTIONS */}
+            {!selectedImage && !cameraOpen && (
               <div className="flex flex-col sm:flex-row gap-3">
 
-                {/* Camera Button */}
+                {/* Take Photo */}
                 <button
                   type="button"
                   onClick={openCamera}
@@ -189,7 +364,7 @@ const ProductReviewPage = () => {
                   </span>
                 </button>
 
-                {/* Gallery Button */}
+                {/* Choose Photo */}
                 <button
                   type="button"
                   onClick={openGallery}
@@ -209,9 +384,10 @@ const ProductReviewPage = () => {
                 </button>
 
               </div>
-            ) : (
+            )}
 
-              /* Image Preview */
+            {/* IMAGE PREVIEW */}
+            {selectedImage && (
               <div className="relative border border-[#EAE1D2] rounded-xl overflow-hidden p-2">
 
                 <img
@@ -220,26 +396,39 @@ const ProductReviewPage = () => {
                   className="w-full h-64 object-cover rounded-lg"
                 />
 
-                {/* Remove Button */}
+                {/* Remove */}
                 <button
                   type="button"
                   onClick={removeImage}
-                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md hover:scale-105 transition"
+                  className="absolute top-4 right-4 w-9 h-9 rounded-full bg-red-500 text-white flex items-center justify-center shadow-md"
                   aria-label="Remove image"
                 >
                   <X className="w-5 h-5" />
                 </button>
 
                 <div className="flex items-center justify-center gap-2 mt-3 text-sm text-[#123D2A]">
+
                   <Upload className="w-4 h-4" />
 
                   <span className="font-medium">
                     Photo selected successfully
                   </span>
+
                 </div>
+
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="mt-3 w-full border border-[#123D2A] text-[#123D2A] py-2 rounded-full text-sm font-bold flex items-center justify-center gap-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+
+                  Choose Another Photo
+                </button>
 
               </div>
             )}
+
           </div>
 
           {/* Buttons */}
@@ -247,7 +436,10 @@ const ProductReviewPage = () => {
 
             <button
               type="button"
-              onClick={() => navigate('/orders')}
+              onClick={() => {
+                stopCamera();
+                navigate('/orders');
+              }}
               className="flex-1 border border-[#123D2A] text-[#123D2A] py-3 rounded-full font-bold hover:bg-[#F7F2E8] transition"
             >
               Cancel
