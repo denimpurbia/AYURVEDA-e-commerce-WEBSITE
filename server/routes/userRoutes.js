@@ -20,7 +20,6 @@ const {
 // LOGGED-IN USER PROFILE ROUTES
 // ==========================================
 
-// Get my profile
 router.get(
   '/profile',
   protect,
@@ -28,7 +27,6 @@ router.get(
 );
 
 
-// Update my profile
 router.put(
   '/profile',
   protect,
@@ -37,19 +35,10 @@ router.put(
 
 
 // ==========================================
-// ADMIN ROUTES
+// ADMIN DASHBOARD ROUTE
+// IMPORTANT: Specific routes first
 // ==========================================
 
-// Get all users
-router.get(
-  '/',
-  protect,
-  adminOnly,
-  getAllUsers
-);
-
-
-// Admin dashboard statistics
 router.get(
   '/dashboard-stats',
   protect,
@@ -58,7 +47,18 @@ router.get(
 );
 
 
-// Update user status
+// ==========================================
+// ADMIN USERS ROUTES
+// ==========================================
+
+router.get(
+  '/',
+  protect,
+  adminOnly,
+  getAllUsers
+);
+
+
 router.put(
   '/:id/status',
   protect,
