@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import PromoBannerImage from '../../assets/Mahabhringraj Tel.jpeg';
 
 const PromoBanner = () => {
   return (
@@ -37,8 +38,8 @@ const PromoBanner = () => {
             {/* Right Still Life Image + Circular Badge matching Reference image */}
             <div className="lg:col-span-6 relative h-64 sm:h-80 lg:h-96 w-full">
               <img
-                src="https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&q=80&w=1000"
-                alt="Ayurvedic product collection banner"
+                src={PromoBannerImage}
+                alt="Mahabhringraj Tel - Ayurvedic Hair & Wellness Oil"
                 className="w-full h-full object-cover object-center"
               />
               

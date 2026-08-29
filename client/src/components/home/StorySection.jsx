@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Leaf, Shield, Heart, Sparkles } from 'lucide-react';
+import { Leaf, Shield, Heart, Sparkles } from 'lucide-react';
 
 const StorySection = () => {
   const values = [
@@ -54,15 +53,6 @@ const StorySection = () => {
               <p className="text-sm sm:text-base text-[#243229]/80 font-medium max-w-xl leading-relaxed">
                 Ayurveda is the science of life. We bring you the finest natural formulations, crafted with utmost care, ethical sourcing, and classical authenticity to restore harmony in daily life.
               </p>
-              <div className="pt-2">
-                <Link
-                  to="/about"
-                  className="inline-flex items-center gap-2 px-7 py-3 bg-[#123D2A] text-white text-xs font-bold tracking-widest rounded-full hover:bg-[#0B2D1E] transition-all shadow-md group"
-                >
-                  DISCOVER OUR STORY
-                  <ArrowRight className="w-4 h-4 text-[#C49A52] group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </div>
             </div>
 
             {/* 4 Brand Value Pillars */}
