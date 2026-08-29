@@ -176,11 +176,10 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
             <div>
               <h3 className="font-serif font-bold text-base text-white tracking-wide flex items-center gap-1.5">
                 AYURVEDA AI
-                <Sparkles className="w-3.5 h-3.5 text-[#C49A52]" />
               </h3>
 
               <p className="text-[10px] text-emerald-100/80">
-                Your Ayurvedic Shopping Assistant
+                Your Ayurvedic shopping  Assistant
               </p>
             </div>
 
