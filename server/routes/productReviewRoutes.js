@@ -16,16 +16,12 @@ const {
   adminOnly,
 } = require('../middleware/authMiddleware');
 
-// IMPORTANT: Existing uploadMiddleware.js use kar rahe hain
 const uploadReviewImages = require(
   '../middleware/uploadMiddleware'
 );
 
-// ==========================================
 // CUSTOMER ROUTES
-// ==========================================
 
-// Create product review with maximum 5 images
 router.post(
   '/',
   protect,
@@ -33,17 +29,13 @@ router.post(
   createProductReview
 );
 
-// Get approved reviews of a particular product
 router.get(
   '/product/:productId',
   getProductReviews
 );
 
-// ==========================================
 // ADMIN ROUTES
-// ==========================================
 
-// Get all product reviews
 router.get(
   '/admin/all',
   protect,
@@ -51,7 +43,6 @@ router.get(
   getAllProductReviews
 );
 
-// Approve product review
 router.put(
   '/:id/approve',
   protect,
@@ -59,7 +50,6 @@ router.put(
   approveProductReview
 );
 
-// Reject product review
 router.put(
   '/:id/reject',
   protect,
@@ -67,7 +57,6 @@ router.put(
   rejectProductReview
 );
 
-// Delete product review
 router.delete(
   '/:id',
   protect,
