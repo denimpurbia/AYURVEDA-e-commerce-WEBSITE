@@ -9,6 +9,8 @@ import {
   CheckCircle,
   XCircle,
   Clock,
+  Package,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const AdminReviewsPage = () => {
@@ -16,23 +18,28 @@ const AdminReviewsPage = () => {
   const [loading, setLoading] = useState(true);
 
   // ==========================================
-  // FETCH ALL REVIEWS
+  // FETCH ALL PRODUCT REVIEWS
   // ==========================================
 
   const fetchReviews = async () => {
     try {
       setLoading(true);
 
-      // IMPORTANT:
-      // Get all reviews including pending, approved and rejected
-      const res = await adminApi.get('/reviews/admin/all');
+      const res = await adminApi.get(
+        '/product-reviews/admin/all'
+      );
 
       if (res.success && res.data) {
         setReviews(res.data);
       }
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Failed to load reviews');
+
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to load product reviews'
+      );
     } finally {
       setLoading(false);
     }
@@ -49,7 +56,7 @@ const AdminReviewsPage = () => {
   const handleApprove = async (reviewId) => {
     try {
       const res = await adminApi.put(
-        `/reviews/${reviewId}/approve`
+        `/product-reviews/${reviewId}/approve`
       );
 
       if (res.success) {
@@ -64,10 +71,14 @@ const AdminReviewsPage = () => {
           )
         );
 
-        alert('Review approved successfully');
+        alert('Product review approved successfully');
       }
     } catch (err) {
-      alert(err.message || 'Failed to approve review');
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to approve review'
+      );
     }
   };
 
@@ -76,17 +87,17 @@ const AdminReviewsPage = () => {
   // ==========================================
 
   const handleReject = async (reviewId) => {
-    if (
-      !window.confirm(
-        'Are you sure you want to reject this review?'
-      )
-    ) {
+    const confirmReject = window.confirm(
+      'Are you sure you want to reject this product review?'
+    );
+
+    if (!confirmReject) {
       return;
     }
 
     try {
       const res = await adminApi.put(
-        `/reviews/${reviewId}/reject`
+        `/product-reviews/${reviewId}/reject`
       );
 
       if (res.success) {
@@ -101,10 +112,14 @@ const AdminReviewsPage = () => {
           )
         );
 
-        alert('Review rejected');
+        alert('Product review rejected successfully');
       }
     } catch (err) {
-      alert(err.message || 'Failed to reject review');
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          'Failed to reject review'
+      );
     }
   };
 
@@ -113,17 +128,17 @@ const AdminReviewsPage = () => {
   // ==========================================
 
   const handleDeleteReview = async (reviewId) => {
-    if (
-      !window.confirm(
-        'Are you sure you want to permanently delete this review?'
-      )
-    ) {
+    const confirmDelete = window.confirm(
+      'Are you sure you want to permanently delete this product review?'
+    );
+
+    if (!confirmDelete) {
       return;
     }
 
     try {
       const res = await adminApi.delete(
-        `/reviews/${reviewId}`
+        `/product-reviews/${reviewId}`
       );
 
       if (res.success) {
@@ -134,11 +149,14 @@ const AdminReviewsPage = () => {
           )
         );
 
-        alert('Review deleted successfully');
+        alert(
+          'Product review deleted successfully'
+        );
       }
     } catch (err) {
       alert(
-        err.message ||
+        err.response?.data?.message ||
+          err.message ||
           'Failed to delete review'
       );
     }
@@ -176,6 +194,26 @@ const AdminReviewsPage = () => {
     }
   };
 
+  // ==========================================
+  // IMAGE URL
+  // ==========================================
+
+  const getImageUrl = (image) => {
+    if (!image) return '';
+
+    if (image.startsWith('http')) {
+      return image;
+    }
+
+    const baseUrl =
+      import.meta.env.VITE_API_URL?.replace(
+        '/api',
+        ''
+      ) || '';
+
+    return `${baseUrl}${image}`;
+  };
+
   return (
     <div className="flex min-h-screen bg-[#F7F2E8]/40">
       <AdminSidebar />
@@ -188,20 +226,21 @@ const AdminReviewsPage = () => {
           {/* HEADER */}
           <div>
             <h2 className="font-serif font-bold text-2xl text-[#123D2A]">
-              Review Moderation
+              Product Review Moderation
             </h2>
 
             <p className="text-xs text-[#7A6248] mt-1">
-              Review customer feedback before it appears publicly on the website.
+              Approve or reject customer product
+              reviews before they appear publicly.
             </p>
           </div>
 
           {/* REVIEW LIST */}
-          <div className="bg-[#FFFDF8] p-6 rounded-2xl border border-[#EAE1D2] shadow-xs">
+          <div className="bg-[#FFFDF8] p-6 rounded-2xl border border-[#EAE1D2] shadow-sm">
 
             {loading ? (
               <p className="text-xs font-bold text-[#123D2A] py-10 text-center">
-                Loading reviews...
+                Loading product reviews...
               </p>
 
             ) : reviews.length === 0 ? (
@@ -209,16 +248,17 @@ const AdminReviewsPage = () => {
                 <Star className="w-8 h-8 text-[#C49A52] mx-auto mb-3" />
 
                 <p className="text-sm font-semibold text-[#123D2A]">
-                  No customer reviews yet
+                  No product reviews yet
                 </p>
 
                 <p className="text-xs text-[#7A6248] mt-1">
-                  Customer reviews will appear here for moderation.
+                  Customer product reviews will appear
+                  here for moderation.
                 </p>
               </div>
 
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5">
 
                 {reviews.map((review) => (
                   <div
@@ -226,17 +266,18 @@ const AdminReviewsPage = () => {
                     className="p-5 bg-[#F7F2E8]/60 rounded-xl border border-[#EAE1D2]"
                   >
 
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
 
                       {/* REVIEW CONTENT */}
-                      <div className="space-y-2 flex-1">
+                      <div className="space-y-4 flex-1">
 
-                        {/* USER */}
+                        {/* USER + STATUS */}
                         <div className="flex items-center justify-between gap-3 flex-wrap">
 
                           <div>
                             <h3 className="font-bold text-sm text-[#123D2A]">
-                              {review.user?.name || 'Customer'}
+                              {review.user?.name ||
+                                'Customer'}
                             </h3>
 
                             <p className="text-[10px] text-[#7A6248]">
@@ -244,47 +285,140 @@ const AdminReviewsPage = () => {
                             </p>
                           </div>
 
-                          {getStatusBadge(review.status)}
+                          {getStatusBadge(
+                            review.status
+                          )}
+                        </div>
+
+                        {/* PRODUCT */}
+                        <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-[#EAE1D2]">
+
+                          {review.product?.images?.[0] ? (
+                            <img
+                              src={getImageUrl(
+                                review.product.images[0]
+                              )}
+                              alt={
+                                review.product?.name ||
+                                'Product'
+                              }
+                              className="w-14 h-14 rounded-lg object-cover border border-[#EAE1D2]"
+                            />
+                          ) : (
+                            <div className="w-14 h-14 rounded-lg bg-[#F7F2E8] flex items-center justify-center">
+                              <Package className="w-6 h-6 text-[#123D2A]" />
+                            </div>
+                          )}
+
+                          <div>
+                            <p className="text-[10px] text-[#7A6248] uppercase">
+                              Product
+                            </p>
+
+                            <h4 className="font-bold text-sm text-[#123D2A]">
+                              {review.product?.name ||
+                                'Product not available'}
+                            </h4>
+                          </div>
                         </div>
 
                         {/* STARS */}
                         <div className="flex items-center gap-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`w-4 h-4 ${
-                                star <= review.rating
-                                  ? 'fill-[#C49A52] text-[#C49A52]'
-                                  : 'text-[#D9D1C3]'
-                              }`}
-                            />
-                          ))}
+
+                          {[1, 2, 3, 4, 5].map(
+                            (star) => (
+                              <Star
+                                key={star}
+                                className={`w-5 h-5 ${
+                                  star <= review.rating
+                                    ? 'fill-[#C49A52] text-[#C49A52]'
+                                    : 'text-[#D9D1C3]'
+                                }`}
+                              />
+                            )
+                          )}
+
+                          <span className="ml-2 text-xs font-bold text-[#123D2A]">
+                            {review.rating}/5
+                          </span>
                         </div>
 
                         {/* COMMENT */}
                         <div className="bg-white p-4 rounded-xl border border-[#EAE1D2]">
+
                           <p className="text-sm text-[#243229] leading-relaxed italic">
                             "{review.comment}"
                           </p>
+
                         </div>
+
+                        {/* REVIEW IMAGES */}
+                        {review.images &&
+                          review.images.length > 0 && (
+                            <div>
+
+                              <div className="flex items-center gap-2 mb-2">
+                                <ImageIcon className="w-4 h-4 text-[#123D2A]" />
+
+                                <span className="text-xs font-bold text-[#123D2A]">
+                                  Customer Photos
+                                </span>
+                              </div>
+
+                              <div className="flex flex-wrap gap-3">
+
+                                {review.images.map(
+                                  (image, index) => (
+                                    <img
+                                      key={index}
+                                      src={getImageUrl(
+                                        image
+                                      )}
+                                      alt={`Review ${index + 1}`}
+                                      className="w-24 h-24 object-cover rounded-lg border border-[#EAE1D2]"
+                                    />
+                                  )
+                                )}
+
+                              </div>
+
+                            </div>
+                          )}
+
+                        {/* VERIFIED BUYER */}
+                        {review.verifiedBuyer && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full">
+                            <CheckCircle className="w-3 h-3" />
+                            VERIFIED BUYER
+                          </span>
+                        )}
 
                         {/* DATE */}
                         <p className="text-[10px] text-[#7A6248]">
+
                           Submitted on{' '}
-                          {new Date(
-                            review.createdAt
-                          ).toLocaleDateString()}
+
+                          {review.createdAt
+                            ? new Date(
+                                review.createdAt
+                              ).toLocaleDateString()
+                            : 'N/A'}
+
                         </p>
+
                       </div>
 
                       {/* ACTIONS */}
-                      <div className="flex sm:flex-col gap-2 shrink-0">
+                      <div className="flex lg:flex-col gap-2 shrink-0">
 
-                        {review.status === 'pending' && (
+                        {review.status ===
+                          'pending' && (
                           <>
                             <button
                               onClick={() =>
-                                handleApprove(review._id)
+                                handleApprove(
+                                  review._id
+                                )
                               }
                               className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition"
                             >
@@ -294,7 +428,9 @@ const AdminReviewsPage = () => {
 
                             <button
                               onClick={() =>
-                                handleReject(review._id)
+                                handleReject(
+                                  review._id
+                                )
                               }
                               className="flex items-center justify-center gap-2 px-4 py-2 bg-red-100 text-red-700 text-xs font-bold rounded-lg hover:bg-red-200 transition"
                             >
@@ -306,7 +442,9 @@ const AdminReviewsPage = () => {
 
                         <button
                           onClick={() =>
-                            handleDeleteReview(review._id)
+                            handleDeleteReview(
+                              review._id
+                            )
                           }
                           className="flex items-center justify-center gap-2 px-4 py-2 border border-red-200 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition"
                         >
@@ -315,12 +453,16 @@ const AdminReviewsPage = () => {
                         </button>
 
                       </div>
+
                     </div>
                   </div>
                 ))}
+
               </div>
             )}
+
           </div>
+
         </main>
       </div>
     </div>
