@@ -8,12 +8,6 @@ const reviewSchema = new mongoose.Schema(
       required: true,
     },
 
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true,
-    },
-
     rating: {
       type: Number,
       required: true,
@@ -29,10 +23,9 @@ const reviewSchema = new mongoose.Schema(
 
     verifiedBuyer: {
       type: Boolean,
-      default: true,
+      default: false,
     },
 
-    // Review moderation status
     status: {
       type: String,
       enum: ['pending', 'approved', 'rejected'],
@@ -44,12 +37,4 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
-reviewSchema.index(
-  { user: 1, product: 1 },
-  { unique: true }
-);
-
-module.exports = mongoose.model(
-  'Review',
-  reviewSchema
-);
+module.exports = mongoose.model('Review', reviewSchema);

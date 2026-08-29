@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
   createReview,
-  getProductReviews,
+  getApprovedReviews,
   getAllReviews,
   approveReview,
   rejectReview,
@@ -18,7 +18,18 @@ const {
 
 
 // ==========================================
-// CUSTOMER ROUTES
+// PUBLIC REVIEWS
+// ==========================================
+
+// Get only approved reviews
+router.get(
+  '/',
+  getApprovedReviews
+);
+
+
+// ==========================================
+// CUSTOMER REVIEW
 // ==========================================
 
 // Create review
@@ -29,20 +40,13 @@ router.post(
 );
 
 
-// Get approved reviews for a product
-router.get(
-  '/product/:productId',
-  getProductReviews
-);
-
-
 // ==========================================
-// ADMIN REVIEW MODERATION ROUTES
+// ADMIN REVIEW MODERATION
 // ==========================================
 
-// Get all reviews
+// Get all reviews including pending and rejected
 router.get(
-  '/',
+  '/admin/all',
   protect,
   adminOnly,
   getAllReviews
