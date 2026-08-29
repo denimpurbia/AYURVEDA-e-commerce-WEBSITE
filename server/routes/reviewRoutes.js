@@ -16,18 +16,20 @@ const {
   adminOnly,
 } = require('../middleware/authMiddleware');
 
+
 // ==========================================
 // CUSTOMER ROUTES
 // ==========================================
 
-// Create a review
+// Create review
 router.post(
   '/',
   protect,
   createReview
 );
 
-// Get only approved reviews for a product
+
+// Get approved reviews for a product
 router.get(
   '/product/:productId',
   getProductReviews
@@ -35,7 +37,7 @@ router.get(
 
 
 // ==========================================
-// ADMIN REVIEW MODERATION
+// ADMIN REVIEW MODERATION ROUTES
 // ==========================================
 
 // Get all reviews
@@ -46,7 +48,8 @@ router.get(
   getAllReviews
 );
 
-// Approve a review
+
+// Approve review
 router.put(
   '/:id/approve',
   protect,
@@ -54,7 +57,8 @@ router.put(
   approveReview
 );
 
-// Reject a review
+
+// Reject review
 router.put(
   '/:id/reject',
   protect,
@@ -62,7 +66,8 @@ router.put(
   rejectReview
 );
 
-// Delete a review
+
+// Delete review
 router.delete(
   '/:id',
   protect,
