@@ -2,28 +2,14 @@ const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema(
   {
-    // User who wrote the review
+    // User who submitted the website experience review
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
 
-    // Particular product being reviewed
-    product: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true,
-    },
-
-    // Order through which the product was purchased
-    order: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Order',
-      required: true,
-    },
-
-    // Rating from 1 to 5
+    // Overall website experience rating
     rating: {
       type: Number,
       required: true,
@@ -31,7 +17,7 @@ const reviewSchema = new mongoose.Schema(
       max: 5,
     },
 
-    // Written review
+    // Customer's website experience
     comment: {
       type: String,
       required: true,
@@ -40,24 +26,21 @@ const reviewSchema = new mongoose.Schema(
       maxlength: 2000,
     },
 
-    // Review images
-    images: [
-      {
-        type: String,
-      },
-    ],
+    // Admin moderation status
+    status: {
+      type: String,
+      enum: [
+        'pending',
+        'approved',
+        'rejected',
+      ],
+      default: 'pending',
+    },
 
-    // Automatically true because only delivered buyers can review
+    // Authenticated customer
     verifiedBuyer: {
       type: Boolean,
       default: true,
-    },
-
-    // Admin moderation
-    status: {
-      type: String,
-      enum: ['pending', 'approved', 'rejected'],
-      default: 'pending',
     },
   },
   {
@@ -65,17 +48,19 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
-// Prevent same user from reviewing the same product
-// multiple times for the same order
+
+// One user can submit one website experience review
 reviewSchema.index(
   {
     user: 1,
-    product: 1,
-    order: 1,
   },
   {
     unique: true,
   }
 );
 
-module.exports = mongoose.model('Review', reviewSchema);
+
+module.exports = mongoose.model(
+  'Review',
+  reviewSchema
+);

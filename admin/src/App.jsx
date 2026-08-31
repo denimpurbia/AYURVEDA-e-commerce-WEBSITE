@@ -11,7 +11,12 @@ import AdminEditProductPage from './pages/Products/AdminEditProductPage';
 import AdminCategoriesPage from './pages/Categories/AdminCategoriesPage';
 import AdminOrdersPage from './pages/Orders/AdminOrdersPage';
 import AdminUsersPage from './pages/Users/AdminUsersPage';
+
+// PRODUCT REVIEWS
 import AdminReviewsPage from './pages/Reviews/AdminReviewsPage';
+
+// WEBSITE EXPERIENCE REVIEWS
+import WebsiteReviews from './pages/Reviews/WebsiteReviews';
 
 import AdminMessagesPage from './pages/Messages/AdminMessagesPage';
 
@@ -46,13 +51,19 @@ const ProtectedAdminRoute = ({ children }) => {
 const App = () => {
   return (
     <Routes>
-      {/* Public Admin Login */}
+      {/* ========================================== */}
+      {/* ADMIN LOGIN */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/login"
         element={<AdminLoginPage />}
       />
 
-      {/* Admin Dashboard */}
+      {/* ========================================== */}
+      {/* ADMIN DASHBOARD */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/dashboard"
         element={
@@ -62,7 +73,10 @@ const App = () => {
         }
       />
 
-      {/* Products */}
+      {/* ========================================== */}
+      {/* PRODUCTS */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/products"
         element={
@@ -90,7 +104,10 @@ const App = () => {
         }
       />
 
-      {/* Categories */}
+      {/* ========================================== */}
+      {/* CATEGORIES */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/categories"
         element={
@@ -100,7 +117,10 @@ const App = () => {
         }
       />
 
-      {/* Orders */}
+      {/* ========================================== */}
+      {/* ORDERS */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/orders"
         element={
@@ -110,7 +130,10 @@ const App = () => {
         }
       />
 
-      {/* Users */}
+      {/* ========================================== */}
+      {/* USERS */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/users"
         element={
@@ -120,7 +143,10 @@ const App = () => {
         }
       />
 
-      {/* Reviews */}
+      {/* ========================================== */}
+      {/* PRODUCT REVIEWS */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/reviews"
         element={
@@ -130,7 +156,23 @@ const App = () => {
         }
       />
 
-      {/* Messages */}
+      {/* ========================================== */}
+      {/* WEBSITE EXPERIENCE REVIEWS */}
+      {/* ========================================== */}
+
+      <Route
+        path="/admin/website-reviews"
+        element={
+          <ProtectedAdminRoute>
+            <WebsiteReviews />
+          </ProtectedAdminRoute>
+        }
+      />
+
+      {/* ========================================== */}
+      {/* MESSAGES */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/messages"
         element={
@@ -140,7 +182,10 @@ const App = () => {
         }
       />
 
-      {/* Settings */}
+      {/* ========================================== */}
+      {/* SETTINGS */}
+      {/* ========================================== */}
+
       <Route
         path="/admin/settings"
         element={
@@ -150,16 +195,32 @@ const App = () => {
         }
       />
 
-      {/* Root */}
+      {/* ========================================== */}
+      {/* ROOT */}
+      {/* ========================================== */}
+
       <Route
         path="/"
-        element={<Navigate to="/admin/login" replace />}
+        element={
+          <Navigate
+            to="/admin/login"
+            replace
+          />
+        }
       />
 
-      {/* Unknown Routes */}
+      {/* ========================================== */}
+      {/* UNKNOWN ROUTES */}
+      {/* ========================================== */}
+
       <Route
         path="*"
-        element={<Navigate to="/admin/login" replace />}
+        element={
+          <Navigate
+            to="/admin/login"
+            replace
+          />
+        }
       />
     </Routes>
   );

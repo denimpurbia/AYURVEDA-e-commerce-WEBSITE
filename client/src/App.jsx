@@ -15,7 +15,7 @@ import AboutPage from './pages/About/AboutPage';
 import ContactPage from './pages/Contact/ContactPage';
 import FaqPage from './pages/FAQ/FaqPage';
 import LegalPage from './pages/Legal/LegalPage';
-
+import WebsiteReviews from './pages/Reviews/WebsiteReviews';
 import ProductReviewPage from './pages/ProductReview/ProductReviewPage';
 
 function App() {
@@ -46,6 +46,11 @@ function App() {
       <Route
         path="/product-review/:productId"
         element={<ProductReviewPage />}
+      />
+
+      <Route
+        path="/website-reviews"
+        element={<WebsiteReviews />}
       />
 
       <Route path="/wishlist" element={<WishlistPage />} />

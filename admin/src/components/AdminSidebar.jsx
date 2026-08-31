@@ -13,6 +13,7 @@ import {
   ExternalLink,
   Leaf,
   Mail,
+  MessageSquare,
 } from 'lucide-react';
 
 const AdminSidebar = () => {
@@ -49,11 +50,21 @@ const AdminSidebar = () => {
       path: '/admin/users',
       icon: Users,
     },
+
+    // PRODUCT REVIEWS
     {
-      name: 'Reviews',
+      name: 'Product Reviews',
       path: '/admin/reviews',
       icon: Star,
     },
+
+    // WEBSITE EXPERIENCE REVIEWS
+    {
+      name: 'Website Reviews',
+      path: '/admin/website-reviews',
+      icon: MessageSquare,
+    },
+
     {
       name: 'Messages',
       path: '/admin/messages',
@@ -98,10 +109,11 @@ const AdminSidebar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${isActive
-                  ? 'bg-[#123D2A] text-[#C49A52] shadow-sm border-l-4 border-[#C49A52]'
-                  : 'text-emerald-100/80 hover:bg-[#123D2A]/60 hover:text-white'
-                  }`}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${
+                  isActive
+                    ? 'bg-[#123D2A] text-[#C49A52] shadow-sm border-l-4 border-[#C49A52]'
+                    : 'text-emerald-100/80 hover:bg-[#123D2A]/60 hover:text-white'
+                }`}
               >
                 <Icon className="w-4 h-4" />
 
