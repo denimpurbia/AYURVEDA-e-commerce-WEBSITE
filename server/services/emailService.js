@@ -1,9 +1,19 @@
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+/* ============================================================
+   SMTP CONFIGURATION
+============================================================ */
 
-const FROM_EMAIL =
-  process.env.EMAIL_FROM || 'AyurvedaMart <onboarding@resend.dev>';
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: Number(process.env.SMTP_PORT),
+  secure: Number(process.env.SMTP_PORT) === 465,
+
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
 
 /* ============================================================
    SEND EMAIL
@@ -11,24 +21,26 @@ const FROM_EMAIL =
 
 const sendEmail = async ({ to, subject, html, text }) => {
   try {
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [to],
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+      to,
       subject,
       html,
       text,
     });
 
-    if (error) {
-      console.error('❌ Resend Email Error:', error);
-      throw new Error(error.message || 'Failed to send email');
-    }
+    console.log(
+      '📧 Email sent successfully:',
+      info.messageId
+    );
 
-    console.log('📧 Email sent successfully:', data?.id);
-
-    return data;
+    return info;
   } catch (error) {
-    console.error('❌ Email Service Error:', error.message);
+    console.error(
+      '❌ Email Service Error:',
+      error.message
+    );
+
     throw error;
   }
 };
