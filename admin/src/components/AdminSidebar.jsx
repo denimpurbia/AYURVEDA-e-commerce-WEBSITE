@@ -62,8 +62,8 @@ const AdminSidebar = () => {
     {
       name: 'Website Reviews',
       path: '/admin/website-reviews',
-      icon: MessageSquare,
-    },
+      icon: Star,
+    },  
 
     {
       name: 'Messages',

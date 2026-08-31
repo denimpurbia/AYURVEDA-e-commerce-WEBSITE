@@ -15,53 +15,61 @@ import AboutPage from './pages/About/AboutPage';
 import ContactPage from './pages/Contact/ContactPage';
 import FaqPage from './pages/FAQ/FaqPage';
 import LegalPage from './pages/Legal/LegalPage';
-import WebsiteReviews from './pages/Reviews/WebsiteReviews';
+
 import ProductReviewPage from './pages/ProductReview/ProductReviewPage';
 
 function App() {
   return (
     <Routes>
+      {/* Home */}
       <Route path="/" element={<HomePage />} />
 
+      {/* Shop */}
       <Route path="/shop" element={<ShopPage />} />
       <Route path="/category/:slug" element={<ShopPage />} />
 
+      {/* Product Details */}
       <Route
         path="/product/:slug"
         element={<ProductDetailsPage />}
       />
 
+      {/* Cart & Checkout */}
       <Route path="/cart" element={<CartPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
 
+      {/* Authentication */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* Account */}
       <Route path="/account" element={<AccountPage />} />
 
+      {/* Orders */}
       <Route path="/orders" element={<OrdersPage />} />
       <Route path="/orders/:id" element={<OrdersPage />} />
 
-      {/* Product Review - Delivered Order Only */}
+      {/* Product Review */}
       <Route
         path="/product-review/:productId"
         element={<ProductReviewPage />}
       />
 
-      <Route
-        path="/website-reviews"
-        element={<WebsiteReviews />}
-      />
-
+      {/* Wishlist */}
       <Route path="/wishlist" element={<WishlistPage />} />
 
+      {/* Information Pages */}
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/faq" element={<FaqPage />} />
 
+      {/* Legal Pages */}
       <Route path="/privacy" element={<LegalPage />} />
       <Route path="/terms" element={<LegalPage />} />
-      <Route path="/refund-policy" element={<LegalPage />} />
+      <Route
+        path="/refund-policy"
+        element={<LegalPage />}
+      />
     </Routes>
   );
 }

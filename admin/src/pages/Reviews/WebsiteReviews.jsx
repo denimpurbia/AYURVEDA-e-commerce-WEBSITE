@@ -8,7 +8,9 @@ import {
   Loader2,
 } from 'lucide-react';
 
-import API from '../../services/api';
+import AdminSidebar from '../../components/AdminSidebar';
+import AdminTopbar from '../../components/AdminTopbar';
+import API from '../../services/adminApi';
 
 const WebsiteReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -16,7 +18,7 @@ const WebsiteReviews = () => {
   const [actionLoading, setActionLoading] = useState(null);
 
   // ==========================================
-  // FETCH ALL WEBSITE EXPERIENCE REVIEWS
+  // FETCH WEBSITE REVIEWS
   // ==========================================
 
   const fetchReviews = async () => {
@@ -29,10 +31,7 @@ const WebsiteReviews = () => {
         setReviews(res.data || []);
       }
     } catch (error) {
-      console.error(
-        'Failed to fetch website reviews:',
-        error
-      );
+      console.error('Failed to fetch website reviews:', error);
 
       alert(
         error?.message ||
@@ -63,10 +62,7 @@ const WebsiteReviews = () => {
         await fetchReviews();
       }
     } catch (error) {
-      console.error(
-        'Failed to approve review:',
-        error
-      );
+      console.error('Failed to approve review:', error);
 
       alert(
         error?.message ||
@@ -93,10 +89,7 @@ const WebsiteReviews = () => {
         await fetchReviews();
       }
     } catch (error) {
-      console.error(
-        'Failed to reject review:',
-        error
-      );
+      console.error('Failed to reject review:', error);
 
       alert(
         error?.message ||
@@ -134,10 +127,7 @@ const WebsiteReviews = () => {
         );
       }
     } catch (error) {
-      console.error(
-        'Failed to delete review:',
-        error
-      );
+      console.error('Failed to delete review:', error);
 
       alert(
         error?.message ||
@@ -182,276 +172,261 @@ const WebsiteReviews = () => {
     );
   };
 
-  // ==========================================
-  // LOADING
-  // ==========================================
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#123D2A]" />
-      </div>
-    );
-  }
-
-  // ==========================================
-  // UI
-  // ==========================================
-
   return (
-    <div className="space-y-6">
+    <div className="flex min-h-screen bg-[#F7F2E8]/40">
 
-      {/* PAGE HEADER */}
+      {/* SIDEBAR */}
+      <AdminSidebar />
 
-      <div>
-        <h1 className="font-serif text-3xl font-bold text-[#123D2A]">
-          Website Experience Reviews
-        </h1>
+      <div className="flex-1 flex flex-col min-w-0">
 
-        <p className="text-sm text-[#7A6248] mt-1">
-          Manage customer feedback about their
-          experience with AyurvedaMart.
-        </p>
-      </div>
+        {/* TOPBAR */}
+        <AdminTopbar />
 
+        <main className="p-6 space-y-6 flex-1 overflow-y-auto">
 
-      {/* REVIEW COUNT */}
+          {/* PAGE HEADER */}
+          <div>
+            <h2 className="font-serif font-bold text-2xl text-[#123D2A]">
+              Website Experience Reviews
+            </h2>
 
-      <div className="bg-white border border-[#EAE1D2] rounded-xl px-5 py-4">
+            <p className="text-xs text-[#7A6248] mt-1">
+              Manage customer feedback about their experience with AyurvedaMart.
+            </p>
+          </div>
 
-        <p className="text-sm text-[#7A6248]">
-          Total Website Reviews
-        </p>
+          {/* LOADING */}
+          {loading ? (
 
-        <p className="text-2xl font-bold text-[#123D2A] mt-1">
-          {reviews.length}
-        </p>
+            <div className="flex items-center justify-center min-h-[400px]">
+              <Loader2 className="w-8 h-8 animate-spin text-[#123D2A]" />
+            </div>
 
-      </div>
+          ) : (
 
+            <>
+              {/* REVIEW COUNT */}
+              <div className="bg-[#FFFDF8] border border-[#EAE1D2] rounded-2xl p-5">
 
-      {/* NO REVIEWS */}
+                <p className="text-[11px] font-bold text-[#7A6248] uppercase">
+                  Total Website Reviews
+                </p>
 
-      {reviews.length === 0 ? (
-
-        <div className="bg-white border border-[#EAE1D2] rounded-2xl p-12 text-center">
-
-          <h3 className="text-lg font-semibold text-[#123D2A]">
-            No website reviews found
-          </h3>
-
-          <p className="text-sm text-[#7A6248] mt-2">
-            Customer experience reviews will appear here.
-          </p>
-
-        </div>
-
-      ) : (
-
-        <div className="space-y-5">
-
-          {reviews.map((review) => (
-
-            <div
-              key={review._id}
-              className="bg-white border border-[#EAE1D2] rounded-2xl p-6 shadow-sm"
-            >
-
-              {/* TOP SECTION */}
-
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
-
-
-                {/* CUSTOMER DETAILS */}
-
-                <div>
-
-                  <h3 className="font-semibold text-[#123D2A] text-lg">
-                    {review.user?.name ||
-                      'Unknown Customer'}
-                  </h3>
-
-                  <p className="text-sm text-[#7A6248]">
-                    {review.user?.email ||
-                      'Email not available'}
-                  </p>
-
-                </div>
-
-
-                {/* STATUS */}
-
-                <span
-                  className={`inline-flex w-fit px-3 py-1 rounded-full border text-xs font-bold uppercase ${getStatusStyle(
-                    review.status
-                  )}`}
-                >
-                  {review.status}
-                </span>
-
-              </div>
-
-
-              {/* STARS */}
-
-              <div className="flex items-center gap-1 mt-5">
-
-                {[1, 2, 3, 4, 5].map(
-                  (star) => (
-
-                    <Star
-                      key={star}
-                      className={`w-5 h-5 ${
-                        star <= review.rating
-                          ? 'fill-[#C49A52] text-[#C49A52]'
-                          : 'text-[#D9D1C3]'
-                      }`}
-                    />
-
-                  )
-                )}
-
-                <span className="ml-2 text-sm font-semibold text-[#123D2A]">
-                  {review.rating}/5
-                </span>
-
-              </div>
-
-
-              {/* REVIEW COMMENT */}
-
-              <div className="mt-5 bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl p-5">
-
-                <p className="text-[#243229] italic leading-relaxed">
-                  "{review.comment}"
+                <p className="font-serif text-2xl font-bold text-[#123D2A] mt-1">
+                  {reviews.length}
                 </p>
 
               </div>
 
+              {/* NO REVIEWS */}
+              {reviews.length === 0 ? (
 
-              {/* BOTTOM */}
+                <div className="bg-[#FFFDF8] border border-[#EAE1D2] rounded-2xl p-12 text-center">
 
-              <div className="mt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                  <h3 className="text-lg font-semibold text-[#123D2A]">
+                    No website reviews found
+                  </h3>
 
-
-                {/* REVIEW INFO */}
-
-                <div>
-
-                  {review.verifiedBuyer && (
-
-                    <div className="flex items-center gap-2 text-sm text-[#789B72] font-medium">
-
-                      <ShieldCheck className="w-4 h-4" />
-
-                      Verified Customer
-
-                    </div>
-
-                  )}
-
-                  <p className="text-xs text-[#7A6248] mt-2">
-
-                    Submitted on{' '}
-
-                    {formatDate(
-                      review.createdAt
-                    )}
-
+                  <p className="text-sm text-[#7A6248] mt-2">
+                    Customer experience reviews will appear here.
                   </p>
 
                 </div>
 
+              ) : (
 
-                {/* ACTION BUTTONS */}
+                <div className="space-y-5">
 
-                <div className="flex flex-wrap gap-3">
+                  {reviews.map((review) => (
 
-
-                  {/* APPROVE */}
-
-                  {review.status !== 'approved' && (
-
-                    <button
-                      onClick={() =>
-                        handleApprove(
-                          review._id
-                        )
-                      }
-                      disabled={
-                        actionLoading ===
-                        review._id
-                      }
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50"
+                    <div
+                      key={review._id}
+                      className="bg-[#FFFDF8] border border-[#EAE1D2] rounded-2xl p-6 shadow-sm"
                     >
 
-                      <Check className="w-4 h-4" />
+                      {/* TOP */}
+                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
 
-                      Approve
+                        {/* CUSTOMER */}
+                        <div>
 
-                    </button>
+                          <h3 className="font-semibold text-[#123D2A] text-lg">
+                            {review.user?.name ||
+                              'Unknown Customer'}
+                          </h3>
 
-                  )}
+                          <p className="text-sm text-[#7A6248]">
+                            {review.user?.email ||
+                              'Email not available'}
+                          </p>
 
+                        </div>
 
-                  {/* REJECT */}
+                        {/* STATUS */}
+                        <span
+                          className={`inline-flex w-fit px-3 py-1 rounded-full border text-xs font-bold uppercase ${getStatusStyle(
+                            review.status
+                          )}`}
+                        >
+                          {review.status}
+                        </span>
 
-                  {review.status !== 'rejected' && (
+                      </div>
 
-                    <button
-                      onClick={() =>
-                        handleReject(
-                          review._id
-                        )
-                      }
-                      disabled={
-                        actionLoading ===
-                        review._id
-                      }
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 text-sm font-semibold hover:bg-red-100 disabled:opacity-50"
-                    >
+                      {/* STARS */}
+                      <div className="flex items-center gap-1 mt-5">
 
-                      <X className="w-4 h-4" />
+                        {[1, 2, 3, 4, 5].map(
+                          (star) => (
 
-                      Reject
+                            <Star
+                              key={star}
+                              className={`w-5 h-5 ${
+                                star <= review.rating
+                                  ? 'fill-[#C49A52] text-[#C49A52]'
+                                  : 'text-[#D9D1C3]'
+                              }`}
+                            />
 
-                    </button>
+                          )
+                        )}
 
-                  )}
+                        <span className="ml-2 text-sm font-semibold text-[#123D2A]">
+                          {review.rating}/5
+                        </span>
 
+                      </div>
 
-                  {/* DELETE */}
+                      {/* COMMENT */}
+                      <div className="mt-5 bg-[#F7F2E8] border border-[#EAE1D2] rounded-xl p-5">
 
-                  <button
-                    onClick={() =>
-                      handleDelete(
-                        review._id
-                      )
-                    }
-                    disabled={
-                      actionLoading ===
-                      review._id
-                    }
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 disabled:opacity-50"
-                  >
+                        <p className="text-[#243229] italic leading-relaxed">
+                          "{review.comment}"
+                        </p>
 
-                    <Trash2 className="w-4 h-4" />
+                      </div>
 
-                    Delete
+                      {/* BOTTOM */}
+                      <div className="mt-5 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
 
-                  </button>
+                        {/* REVIEW INFO */}
+                        <div>
+
+                          {review.verifiedBuyer && (
+
+                            <div className="flex items-center gap-2 text-sm text-[#789B72] font-medium">
+
+                              <ShieldCheck className="w-4 h-4" />
+
+                              Verified Customer
+
+                            </div>
+
+                          )}
+
+                          <p className="text-xs text-[#7A6248] mt-2">
+
+                            Submitted on{' '}
+
+                            {formatDate(
+                              review.createdAt
+                            )}
+
+                          </p>
+
+                        </div>
+
+                        {/* BUTTONS */}
+                        <div className="flex flex-wrap gap-3">
+
+                          {/* APPROVE */}
+                          {review.status !== 'approved' && (
+
+                            <button
+                              onClick={() =>
+                                handleApprove(
+                                  review._id
+                                )
+                              }
+                              disabled={
+                                actionLoading ===
+                                review._id
+                              }
+                              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700 disabled:opacity-50"
+                            >
+
+                              <Check className="w-4 h-4" />
+
+                              Approve
+
+                            </button>
+
+                          )}
+
+                          {/* REJECT */}
+                          {review.status !== 'rejected' && (
+
+                            <button
+                              onClick={() =>
+                                handleReject(
+                                  review._id
+                                )
+                              }
+                              disabled={
+                                actionLoading ===
+                                review._id
+                              }
+                              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-50 text-red-600 border border-red-200 text-sm font-semibold hover:bg-red-100 disabled:opacity-50"
+                            >
+
+                              <X className="w-4 h-4" />
+
+                              Reject
+
+                            </button>
+
+                          )}
+
+                          {/* DELETE */}
+                          <button
+                            onClick={() =>
+                              handleDelete(
+                                review._id
+                              )
+                            }
+                            disabled={
+                              actionLoading ===
+                              review._id
+                            }
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 disabled:opacity-50"
+                          >
+
+                            <Trash2 className="w-4 h-4" />
+
+                            Delete
+
+                          </button>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  ))}
 
                 </div>
 
-              </div>
+              )}
 
-            </div>
+            </>
 
-          ))}
+          )}
 
-        </div>
+        </main>
 
-      )}
+      </div>
 
     </div>
   );
