@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   createProductReview,
   getProductReviews,
+  getAllProductReviews,
 } = require(
   '../controllers/productReviewController'
 );
@@ -20,7 +21,24 @@ const uploadReviewImages = require(
 );
 
 
-// Create product review
+// ==========================================
+// ADMIN: GET ALL PRODUCT REVIEWS
+// ==========================================
+// GET /api/product-reviews/admin/all
+// ==========================================
+
+router.get(
+  '/admin/all',
+  protect,
+  getAllProductReviews
+);
+
+
+// ==========================================
+// CUSTOMER: CREATE PRODUCT REVIEW
+// ==========================================
+// POST /api/product-reviews
+// ==========================================
 
 router.post(
   '/',
@@ -33,7 +51,11 @@ router.post(
 );
 
 
-// Get all reviews of a product
+// ==========================================
+// PUBLIC: GET PRODUCT REVIEWS OF A PRODUCT
+// ==========================================
+// GET /api/product-reviews/product/:productId
+// ==========================================
 
 router.get(
   '/product/:productId',
