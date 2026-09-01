@@ -72,7 +72,6 @@ const OrdersPage = () => {
           </div>
         ) : orders.length === 0 ? (
 
-          /* Empty Orders */
           <div className="bg-[#F7F2E8] p-12 text-center rounded-3xl border border-[#EAE1D2] space-y-4 max-w-lg mx-auto">
 
             <Package className="w-12 h-12 text-[#123D2A] mx-auto" />
@@ -96,7 +95,6 @@ const OrdersPage = () => {
 
         ) : (
 
-          /* Orders */
           <div className="space-y-6">
 
             {orders.map((order) => {
@@ -160,10 +158,9 @@ const OrdersPage = () => {
 
                     <div className="p-6 border-b border-[#EAE1D2] bg-[#FFFDF8]">
 
-                      <div className="flex items-center justify-between text-[11px] font-bold text-[#123D2A] max-w-2xl mx-auto relative">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-[#123D2A] max-w-2xl mx-auto">
 
-                        {/* Order Placed */}
-                        <div className="flex flex-col items-center z-10">
+                        <div className="flex flex-col items-center">
 
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -181,8 +178,7 @@ const OrdersPage = () => {
 
                         </div>
 
-                        {/* Processing */}
-                        <div className="flex flex-col items-center z-10">
+                        <div className="flex flex-col items-center">
 
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -200,8 +196,7 @@ const OrdersPage = () => {
 
                         </div>
 
-                        {/* Shipped */}
-                        <div className="flex flex-col items-center z-10">
+                        <div className="flex flex-col items-center">
 
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -219,8 +214,7 @@ const OrdersPage = () => {
 
                         </div>
 
-                        {/* Delivered */}
-                        <div className="flex flex-col items-center z-10">
+                        <div className="flex flex-col items-center">
 
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -251,11 +245,11 @@ const OrdersPage = () => {
 
                       <div
                         key={idx}
-                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs py-3 border-b border-[#EAE1D2]/60 last:border-none"
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs py-4 border-b border-[#EAE1D2]/60 last:border-none"
                       >
 
-                        {/* Product */}
-                        <div className="flex items-center space-x-3">
+                        {/* LEFT SIDE - PRODUCT */}
+                        <div className="flex items-center gap-4 flex-1">
 
                           <img
                             src={item.image}
@@ -264,39 +258,38 @@ const OrdersPage = () => {
                           />
 
                           <div>
-
-                            <span className="font-bold text-[#123D2A] block">
+                            <span className="font-bold text-[#123D2A] block text-sm">
                               {item.name}
                             </span>
 
-                            <span className="text-[#7A6248]">
+                            <span className="text-[#7A6248] block mt-1">
                               Qty: {item.quantity} x ₹{item.price}
                             </span>
-
-                            {/* WRITE REVIEW - ONLY DELIVERED */}
-                            {order.orderStatus === 'Delivered' && (
-
-                              <Link
-                                to={`/product-review/${item.product}?orderId=${order._id}`}
-                                className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#123D2A] text-white rounded-full font-bold hover:bg-[#0c2b1e] transition"
-                              >
-
-                                <Star className="w-4 h-4" />
-
-                                Write Review
-
-                              </Link>
-  
-                            )}
-
                           </div>
 
                         </div>
 
-                        {/* Price */}
-                        <span className="font-bold text-[#123D2A]">
-                          ₹{item.price * item.quantity}
-                        </span>
+                        {/* RIGHT SIDE - REVIEW AND PRICE */}
+                        <div className="flex items-center gap-5 sm:gap-8">
+
+                          {order.orderStatus === 'Delivered' && (
+
+                            <Link
+                              to={`/product-review/${item.product}?orderId=${order._id}`}
+                              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#123D2A] text-white rounded-full font-bold hover:bg-[#0c2b1e] transition whitespace-nowrap"
+                            >
+                              <Star className="w-4 h-4" />
+
+                              Write Review
+                            </Link>
+
+                          )}
+
+                          <span className="font-bold text-[#123D2A] text-sm whitespace-nowrap min-w-[70px] text-right">
+                            ₹{item.price * item.quantity}
+                          </span>
+
+                        </div>
 
                       </div>
 
