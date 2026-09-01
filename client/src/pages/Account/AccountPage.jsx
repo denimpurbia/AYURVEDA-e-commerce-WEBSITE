@@ -21,7 +21,12 @@ import {
 } from 'lucide-react';
 
 const AccountPage = () => {
-  const { user, logout } = useAuth();
+  const {
+  user,
+  loading: authLoading,
+  logout,
+} = useAuth();  
+
   const navigate = useNavigate();
 
   const [profile, setProfile] = useState(null);
@@ -41,19 +46,27 @@ const AccountPage = () => {
   });
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
+  // Wait until AuthContext finishes restoring session
+  if (authLoading) {
+    return;
+  }
 
-    fetchProfile();
-  }, [user, navigate]);
+  // Only redirect after session check is complete
+  if (!user) {
+    navigate('/login', {
+      replace: true,
+    });
+    return;
+  }
+
+  fetchProfile();
+}, [user, authLoading, navigate]);
 
   const fetchProfile = async () => {
     try {
       setLoading(true);
 
-      const response = await API.get('/users/profile');
+      const response = await API.get('/auth/me');
 
       if (response.success) {
         const userData = response.data;
@@ -106,10 +119,10 @@ const AccountPage = () => {
     try {
       setSaving(true);
 
-      const response = await API.put(
-        '/users/profile',
-        formData
-      );
+     const response = await API.put(
+  '/auth/profile',
+  formData
+);
 
       if (response.success) {
         setProfile(response.data);
@@ -171,7 +184,7 @@ const AccountPage = () => {
     navigate('/');
   };
 
-  if (!user || loading) {
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-[#FFFDF8] flex items-center justify-center">
         <div className="text-center">
@@ -184,6 +197,9 @@ const AccountPage = () => {
       </div>
     );
   }
+  if (!user) {
+  return null;
+}
 
   const currentUser = profile || user;
 
