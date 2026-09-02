@@ -62,28 +62,30 @@ const HomePage = () => {
       <Footer />
 
 
-      {/* FLOATING AYURVEDA AI */}
-      <button
-        onClick={() => setAiChatOpen(true)}
-        className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-40 group"
-        aria-label="Open Ayurveda AI Assistant"
-      >
-        <img
-          src={AyurvedaAiImage}
-          alt="Ask Ayurveda AI"
-          className="
-            w-40
-            sm:w-48
-            md:w-52
-            cursor-pointer
-            drop-shadow-2xl
-            transition-all
-            duration-300
-            group-hover:scale-105
-          "
-        />
-      </button>
+    {/* FLOATING AYURVEDA AI */}
 
+{!aiChatOpen && (
+  <button
+    onClick={() => setAiChatOpen(true)}
+    className="fixed bottom-24 right-3 sm:bottom-5 sm:right-5 z-[100] group"
+    aria-label="Open Ayurveda AI Assistant"
+  >
+    <img
+      src={AyurvedaAiImage}
+      alt="Ask Ayurveda AI"
+      className="
+        w-40
+        sm:w-48
+        md:w-52
+        cursor-pointer
+        drop-shadow-2xl
+        transition-all
+        duration-300
+        group-hover:scale-105
+      "
+    />
+  </button>
+)}
 
       {/* AI CHATBOT MODAL */}
       <AiChatbotModal

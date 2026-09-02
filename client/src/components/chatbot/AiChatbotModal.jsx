@@ -4,7 +4,6 @@ import {
   X,
   Send,
   Leaf,
-  Sparkles,
   ShoppingBag,
   ArrowRight,
   LockKeyhole,
@@ -62,7 +61,6 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
           ]);
         }
       } catch (error) {
-        // User is not logged in
         setIsAuthenticated(false);
 
         setMessages([
@@ -88,14 +86,32 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: 'smooth',
+      block: 'end',
     });
   };
 
   useEffect(() => {
     if (isOpen) {
-      scrollToBottom();
+      setTimeout(scrollToBottom, 100);
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, loading]);
+
+  /* ============================================================
+   LOCK BACKGROUND SCROLL WHEN CHAT IS OPEN
+============================================================ */
+
+useEffect(() => {
+  if (isOpen) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+
+  return () => {
+    document.body.style.overflow = '';
+  };
+}, [isOpen]);
+
 
   if (!isOpen) return null;
 
@@ -104,7 +120,6 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
   ============================================================ */
 
   const handleSend = async (queryText) => {
-    // Extra protection
     if (!isAuthenticated) {
       return;
     }
@@ -157,15 +172,52 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:justify-end sm:p-6 bg-black/40 backdrop-blur-xs">
-
-      <div className="w-full sm:w-[420px] h-[85vh] sm:h-[600px] bg-[#FFFDF8] rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#EAE1D2] flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom duration-300">
+    <div
+      className="
+        fixed
+        inset-0
+        z-[200]
+        flex
+        items-center
+        justify-center
+        bg-black/40
+        backdrop-blur-sm
+        p-3
+        sm:items-center
+        sm:justify-end
+        sm:p-6
+      "
+    >
+      <div
+        className="
+          w-full
+          max-w-[520px]
+          h-[calc(100dvh-10rem)]
+          min-h-[420px]
+          max-h-[680px]
+          sm:w-[420px]
+          sm:h-[600px]
+          sm:max-h-[calc(100dvh-3rem)]
+          bg-[#FFFDF8]
+          rounded-3xl
+          shadow-2xl
+          border
+          border-[#EAE1D2]
+          flex
+          flex-col
+          overflow-hidden
+          animate-in
+          fade-in
+          slide-in-from-bottom
+          duration-300
+        "
+      >
 
         {/* =====================================================
             CHATBOT HEADER
         ===================================================== */}
 
-        <div className="bg-[#123D2A] text-white p-4 flex items-center justify-between border-b border-[#789B72]/30">
+        <div className="shrink-0 bg-[#123D2A] text-white p-4 flex items-center justify-between border-b border-[#789B72]/30">
 
           <div className="flex items-center space-x-3">
 
@@ -174,12 +226,12 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
             </div>
 
             <div>
-              <h3 className="font-serif font-bold text-base text-white tracking-wide flex items-center gap-1.5">
+              <h3 className="font-serif font-bold text-base text-white tracking-wide">
                 AYURVEDA AI
               </h3>
 
               <p className="text-[10px] text-emerald-100/80">
-                Your Ayurvedic shopping  Assistant
+                Your Ayurvedic shopping Assistant
               </p>
             </div>
 
@@ -188,6 +240,7 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
           <button
             onClick={onClose}
             className="p-1.5 rounded-full hover:bg-white/10 text-white transition-colors"
+            aria-label="Close Ayurveda AI"
           >
             <X className="w-5 h-5" />
           </button>
@@ -199,7 +252,8 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
         ===================================================== */}
 
         {checkingAuth ? (
-          <div className="flex-1 flex items-center justify-center">
+
+          <div className="flex-1 min-h-0 flex items-center justify-center">
 
             <div className="flex flex-col items-center gap-3 text-[#123D2A]">
 
@@ -212,13 +266,14 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
             </div>
 
           </div>
+
         ) : !isAuthenticated ? (
 
           /* ===================================================
              GUEST USER
           =================================================== */
 
-          <div className="flex-1 flex items-center justify-center p-6">
+          <div className="flex-1 min-h-0 flex items-center justify-center p-6 overflow-y-auto">
 
             <div className="w-full text-center">
 
@@ -245,7 +300,9 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
                 className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full bg-[#123D2A] text-white font-semibold text-sm hover:bg-[#0B2D1E] transition-colors shadow-md"
               >
                 Login to Continue
+
                 <ArrowRight className="w-4 h-4 text-[#C49A52]" />
+
               </Link>
 
               <p className="mt-4 text-[11px] text-[#7A6248]">
@@ -258,16 +315,15 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
 
         ) : (
 
-          /* ===================================================
-             AUTHENTICATED USER
-          =================================================== */
-
           <>
-            {/* Quick Suggestion Chips */}
+            {/* ===================================================
+                QUICK SUGGESTIONS
+            =================================================== */}
 
-            <div className="bg-[#F7F2E8] px-3 py-2 border-b border-[#EAE1D2] flex items-center gap-2 overflow-x-auto text-[11px] font-semibold text-[#123D2A]">
+            <div className="shrink-0 bg-[#F7F2E8] px-3 py-2 border-b border-[#EAE1D2] flex items-center gap-2 overflow-x-auto text-[11px] font-semibold text-[#123D2A]">
 
               <button
+                type="button"
                 onClick={() =>
                   handleSend('Show immunity products')
                 }
@@ -277,6 +333,7 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
               </button>
 
               <button
+                type="button"
                 onClick={() =>
                   handleSend('Show products under ₹500')
                 }
@@ -286,6 +343,7 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
               </button>
 
               <button
+                type="button"
                 onClick={() =>
                   handleSend('Best hair growth oils')
                 }
@@ -296,9 +354,11 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
 
             </div>
 
-            {/* Chat Messages */}
+            {/* ===================================================
+                CHAT MESSAGES
+            =================================================== */}
 
-            <div className="flex-1 p-4 overflow-y-auto space-y-4 text-xs">
+            <div className="flex-1 min-h-0 p-4 overflow-y-auto overscroll-contain space-y-4 text-xs">
 
               {messages.map((msg, idx) => (
 
@@ -323,7 +383,7 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
                       {msg.text}
                     </p>
 
-                    {/* Returned Products */}
+                    {/* RETURNED PRODUCTS */}
 
                     {msg.products &&
                       msg.products.length > 0 && (
@@ -341,15 +401,15 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
                               className="bg-[#FFFDF8] p-2 rounded-xl border border-[#EAE1D2] flex items-center justify-between gap-2 shadow-xs"
                             >
 
-                              <div className="flex items-center space-x-2">
+                              <div className="flex items-center space-x-2 min-w-0">
 
                                 <img
                                   src={p.image}
                                   alt={p.name}
-                                  className="w-10 h-10 object-cover rounded-lg"
+                                  className="w-10 h-10 object-cover rounded-lg shrink-0"
                                 />
 
-                                <div>
+                                <div className="min-w-0">
 
                                   <h5 className="font-bold text-[11px] text-[#123D2A] line-clamp-1">
                                     {p.name}
@@ -363,9 +423,10 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
 
                               </div>
 
-                              <div className="flex items-center space-x-1">
+                              <div className="flex items-center space-x-1 shrink-0">
 
                                 <button
+                                  type="button"
                                   onClick={() =>
                                     addToCart(p, 1)
                                   }
@@ -391,6 +452,7 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
                           ))}
 
                         </div>
+
                       )}
 
                   </div>
@@ -399,7 +461,7 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
 
               ))}
 
-              {/* Loading */}
+              {/* LOADING */}
 
               {loading && (
 
@@ -423,39 +485,55 @@ const AiChatbotModal = ({ isOpen, onClose }) => {
 
             </div>
 
-            {/* Input */}
+            {/* ===================================================
+                INPUT AREA
+            =================================================== */}
 
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSend();
               }}
-              className="p-3 bg-[#FFFDF8] border-t border-[#EAE1D2] flex items-center gap-2"
+              className="
+                shrink-0
+                p-3
+                pb-[calc(0.75rem+env(safe-area-inset-bottom))]
+                bg-[#FFFDF8]
+                border-t
+                border-[#EAE1D2]
+                flex
+                items-center
+                gap-2
+              "
             >
 
               <input
                 type="text"
-                placeholder="Ask about kadhas, oils, or products under budget..."
+                placeholder="Ask about kadhas, oils, or products..."
                 value={input}
                 onChange={(e) =>
                   setInput(e.target.value)
                 }
-                className="flex-1 px-4 py-2 text-xs bg-[#F7F2E8] border border-[#789B72]/30 rounded-full focus:outline-none focus:ring-1 focus:ring-[#123D2A]"
+                className="flex-1 min-w-0 px-4 py-2.5 text-xs bg-[#F7F2E8] border border-[#789B72]/30 rounded-full focus:outline-none focus:ring-1 focus:ring-[#123D2A]"
               />
 
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="p-2.5 rounded-full bg-[#123D2A] text-white disabled:opacity-50 hover:bg-[#0B2D1E] transition-colors shadow-sm"
+                className="shrink-0 p-2.5 rounded-full bg-[#123D2A] text-white disabled:opacity-50 hover:bg-[#0B2D1E] transition-colors shadow-sm"
+                aria-label="Send message"
               >
                 <Send className="w-4 h-4 text-[#C49A52]" />
               </button>
 
             </form>
+
           </>
+
         )}
 
       </div>
+
     </div>
   );
 };

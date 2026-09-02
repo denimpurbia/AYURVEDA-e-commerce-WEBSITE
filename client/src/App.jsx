@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
+
+import SplashScreen from './components/SplashScreen';
+import ScrollToTop from './components/ScrollToTop';
+import MobileBottomNav from './components/mobile/MobileBottomNav';
 
 import HomePage from './pages/Home/HomePage';
 import ShopPage from './pages/Shop/ShopPage';
@@ -15,62 +19,92 @@ import AboutPage from './pages/About/AboutPage';
 import ContactPage from './pages/Contact/ContactPage';
 import FaqPage from './pages/FAQ/FaqPage';
 import LegalPage from './pages/Legal/LegalPage';
-
 import ProductReviewPage from './pages/ProductReview/ProductReviewPage';
 
 function App() {
+  const [loading, setLoading] = useState(() => {
+    return window.innerWidth < 1024;
+  });
+
+  useEffect(() => {
+    // Desktop / Laptop par splash bilkul nahi
+    if (window.innerWidth >= 1024) {
+      setLoading(false);
+      return;
+    }
+
+    // Mobile par splash
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1800);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
-    <Routes>
-      {/* Home */}
-      <Route path="/" element={<HomePage />} />
+    <>
+      {/* ONLY MOBILE SPLASH SCREEN */}
+      {loading && <SplashScreen />}
 
-      {/* Shop */}
-      <Route path="/shop" element={<ShopPage />} />
-      <Route path="/category/:slug" element={<ShopPage />} />
+      <div className="min-h-screen pb-[76px] lg:pb-0">
+        <ScrollToTop />
 
-      {/* Product Details */}
-      <Route
-        path="/product/:slug"
-        element={<ProductDetailsPage />}
-      />
+        <Routes>
+          {/* Home */}
+          <Route path="/" element={<HomePage />} />
 
-      {/* Cart & Checkout */}
-      <Route path="/cart" element={<CartPage />} />
-      <Route path="/checkout" element={<CheckoutPage />} />
+          {/* Shop */}
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/category/:slug" element={<ShopPage />} />
 
-      {/* Authentication */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+          {/* Product Details */}
+          <Route
+            path="/product/:slug"
+            element={<ProductDetailsPage />}
+          />
 
-      {/* Account */}
-      <Route path="/account" element={<AccountPage />} />
+          {/* Cart & Checkout */}
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
 
-      {/* Orders */}
-      <Route path="/orders" element={<OrdersPage />} />
-      <Route path="/orders/:id" element={<OrdersPage />} />
+          {/* Authentication */}
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
-      {/* Product Review */}
-      <Route
-        path="/product-review/:productId"
-        element={<ProductReviewPage />}
-      />
+          {/* Account */}
+          <Route path="/account" element={<AccountPage />} />
 
-      {/* Wishlist */}
-      <Route path="/wishlist" element={<WishlistPage />} />
+          {/* Orders */}
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrdersPage />} />
 
-      {/* Information Pages */}
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/faq" element={<FaqPage />} />
+          {/* Product Review */}
+          <Route
+            path="/product-review/:productId"
+            element={<ProductReviewPage />}
+          />
 
-      {/* Legal Pages */}
-      <Route path="/privacy" element={<LegalPage />} />
-      <Route path="/terms" element={<LegalPage />} />
-      <Route
-        path="/refund-policy"
-        element={<LegalPage />}
-      />
-    </Routes>
+          {/* Wishlist */}
+          <Route path="/wishlist" element={<WishlistPage />} />
+
+          {/* Information Pages */}
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/faq" element={<FaqPage />} />
+
+          {/* Legal Pages */}
+          <Route path="/privacy" element={<LegalPage />} />
+          <Route path="/terms" element={<LegalPage />} />
+          <Route
+            path="/refund-policy"
+            element={<LegalPage />}
+          />
+        </Routes>
+
+        {/* MOBILE BOTTOM NAVIGATION */}
+        <MobileBottomNav />
+      </div>
+    </>
   );
 }
 

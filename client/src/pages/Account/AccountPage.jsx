@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+
 import AnnouncementBar from '../../components/layout/AnnouncementBar';
 import Navbar from '../../components/layout/Navbar';
 import Footer from '../../components/layout/Footer';
+
 import { useAuth } from '../../context/AuthContext';
 import API from '../../services/api';
 
@@ -22,10 +24,10 @@ import {
 
 const AccountPage = () => {
   const {
-  user,
-  loading: authLoading,
-  logout,
-} = useAuth();  
+    user,
+    loading: authLoading,
+    logout,
+  } = useAuth();
 
   const navigate = useNavigate();
 
@@ -46,21 +48,19 @@ const AccountPage = () => {
   });
 
   useEffect(() => {
-  // Wait until AuthContext finishes restoring session
-  if (authLoading) {
-    return;
-  }
+    if (authLoading) {
+      return;
+    }
 
-  // Only redirect after session check is complete
-  if (!user) {
-    navigate('/login', {
-      replace: true,
-    });
-    return;
-  }
+    if (!user) {
+      navigate('/login', {
+        replace: true,
+      });
+      return;
+    }
 
-  fetchProfile();
-}, [user, authLoading, navigate]);
+    fetchProfile();
+  }, [user, authLoading, navigate]);
 
   const fetchProfile = async () => {
     try {
@@ -119,10 +119,10 @@ const AccountPage = () => {
     try {
       setSaving(true);
 
-     const response = await API.put(
-  '/auth/profile',
-  formData
-);
+      const response = await API.put(
+        '/auth/profile',
+        formData
+      );
 
       if (response.success) {
         setProfile(response.data);
@@ -131,14 +131,10 @@ const AccountPage = () => {
           name: response.data.name || '',
           phone: response.data.phone || '',
           address: {
-            street:
-              response.data.address?.street || '',
-            city:
-              response.data.address?.city || '',
-            state:
-              response.data.address?.state || '',
-            pincode:
-              response.data.address?.pincode || '',
+            street: response.data.address?.street || '',
+            city: response.data.address?.city || '',
+            state: response.data.address?.state || '',
+            pincode: response.data.address?.pincode || '',
           },
         });
 
@@ -150,8 +146,7 @@ const AccountPage = () => {
       console.error(error);
 
       alert(
-        error.message ||
-          'Failed to update profile'
+        error.message || 'Failed to update profile'
       );
     } finally {
       setSaving(false);
@@ -164,14 +159,10 @@ const AccountPage = () => {
         name: profile.name || '',
         phone: profile.phone || '',
         address: {
-          street:
-            profile.address?.street || '',
-          city:
-            profile.address?.city || '',
-          state:
-            profile.address?.state || '',
-          pincode:
-            profile.address?.pincode || '',
+          street: profile.address?.street || '',
+          city: profile.address?.city || '',
+          state: profile.address?.state || '',
+          pincode: profile.address?.pincode || '',
         },
       });
     }
@@ -197,9 +188,10 @@ const AccountPage = () => {
       </div>
     );
   }
+
   if (!user) {
-  return null;
-}
+    return null;
+  }
 
   const currentUser = profile || user;
 
@@ -217,11 +209,11 @@ const AccountPage = () => {
 
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-grow w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-24 lg:pb-10 flex-grow w-full">
 
         {/* PAGE HEADER */}
 
-        <div className="border-b border-[#EAE1D2] pb-5 mb-8">
+        <div className="border-b border-[#EAE1D2] pb-5 mb-6 sm:mb-8">
           <span className="text-xs font-bold tracking-widest text-[#7A6248] uppercase block mb-1">
             MY ACCOUNT
           </span>
@@ -235,43 +227,41 @@ const AccountPage = () => {
           </p>
         </div>
 
-
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* PROFILE SECTION */}
 
           <div className="lg:col-span-5">
 
-            <div className="bg-[#F7F2E8] p-6 sm:p-8 rounded-3xl border border-[#EAE1D2]">
+            <div className="bg-[#F7F2E8] p-5 sm:p-8 rounded-3xl border border-[#EAE1D2]">
 
               {/* PROFILE HEADER */}
 
-              <div className="flex items-start justify-between gap-4 mb-7">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-7">
 
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 min-w-0">
 
-                  <div className="w-16 h-16 rounded-full bg-[#123D2A] text-[#C49A52] flex items-center justify-center text-2xl font-bold font-serif">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-full bg-[#123D2A] text-[#C49A52] flex items-center justify-center text-xl sm:text-2xl font-bold font-serif">
                     {currentUser.name?.charAt(0)?.toUpperCase()}
                   </div>
 
-                  <div>
-                    <h3 className="font-serif font-bold text-xl text-[#123D2A]">
+                  <div className="min-w-0">
+                    <h3 className="font-serif font-bold text-lg sm:text-xl text-[#123D2A] truncate">
                       {currentUser.name}
                     </h3>
 
-                    <p className="text-xs text-[#7A6248] mt-1">
+                    <p className="text-xs text-[#7A6248] mt-1 break-all">
                       {currentUser.email}
                     </p>
                   </div>
 
                 </div>
 
-
                 {!editMode && (
 
                   <button
                     onClick={() => setEditMode(true)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#123D2A] text-white text-xs font-bold hover:bg-[#0B2D1E]"
+                    className="self-start sm:self-auto shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-[#123D2A] text-white text-xs font-bold hover:bg-[#0B2D1E] transition-colors"
                   >
                     <Edit3 className="w-4 h-4 text-[#C49A52]" />
 
@@ -281,7 +271,6 @@ const AccountPage = () => {
                 )}
 
               </div>
-
 
               {/* EDIT MODE */}
 
@@ -295,7 +284,6 @@ const AccountPage = () => {
                   {/* NAME */}
 
                   <div>
-
                     <label className="text-xs font-bold text-[#123D2A] uppercase block mb-2">
                       Full Name
                     </label>
@@ -308,37 +296,31 @@ const AccountPage = () => {
                       required
                       className="w-full p-3 text-sm bg-white border border-[#EAE1D2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C49A52]"
                     />
-
                   </div>
-
 
                   {/* EMAIL */}
 
                   <div>
-
                     <label className="text-xs font-bold text-[#123D2A] uppercase block mb-2">
                       Email Address
                     </label>
 
                     <div className="flex items-center gap-3 p-3 bg-white/70 border border-[#EAE1D2] rounded-xl text-sm text-[#7A6248]">
+                      <Mail className="w-4 h-4 text-[#C49A52] shrink-0" />
 
-                      <Mail className="w-4 h-4 text-[#C49A52]" />
-
-                      {currentUser.email}
-
+                      <span className="break-all">
+                        {currentUser.email}
+                      </span>
                     </div>
 
                     <p className="text-[10px] text-[#7A6248] mt-1">
                       Email address cannot be changed here.
                     </p>
-
                   </div>
-
 
                   {/* PHONE */}
 
                   <div>
-
                     <label className="text-xs font-bold text-[#123D2A] uppercase block mb-2">
                       Phone Number
                     </label>
@@ -351,22 +333,17 @@ const AccountPage = () => {
                       placeholder="Enter your phone number"
                       className="w-full p-3 text-sm bg-white border border-[#EAE1D2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C49A52]"
                     />
-
                   </div>
-
 
                   {/* ADDRESS */}
 
                   <div className="pt-2 border-t border-[#EAE1D2]">
 
                     <h4 className="font-serif font-bold text-lg text-[#123D2A] mb-4 flex items-center gap-2">
-
                       <MapPin className="w-5 h-5 text-[#C49A52]" />
 
                       Delivery Address
-
                     </h4>
-
 
                     <div className="space-y-3">
 
@@ -379,7 +356,6 @@ const AccountPage = () => {
                         className="w-full p-3 text-sm bg-white border border-[#EAE1D2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C49A52]"
                       />
 
-
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
                         <input
@@ -391,7 +367,6 @@ const AccountPage = () => {
                           className="w-full p-3 text-sm bg-white border border-[#EAE1D2] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C49A52]"
                         />
 
-
                         <input
                           type="text"
                           name="state"
@@ -402,7 +377,6 @@ const AccountPage = () => {
                         />
 
                       </div>
-
 
                       <input
                         type="text"
@@ -417,35 +391,29 @@ const AccountPage = () => {
 
                   </div>
 
-
                   {/* BUTTONS */}
 
-                  <div className="flex gap-3 pt-3">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-3">
 
                     <button
                       type="submit"
                       disabled={saving}
                       className="flex-1 py-3 bg-[#123D2A] text-white text-xs font-bold rounded-full hover:bg-[#0B2D1E] flex items-center justify-center gap-2 disabled:opacity-60"
                     >
-
                       <Save className="w-4 h-4 text-[#C49A52]" />
 
                       {saving
                         ? 'SAVING...'
                         : 'SAVE CHANGES'}
-
                     </button>
-
 
                     <button
                       type="button"
                       onClick={handleCancelEdit}
                       disabled={saving}
-                      className="px-5 py-3 border border-[#EAE1D2] text-[#7A6248] text-xs font-bold rounded-full hover:bg-white"
+                      className="w-full sm:w-auto px-5 py-3 border border-[#EAE1D2] text-[#7A6248] text-xs font-bold rounded-full hover:bg-white flex items-center justify-center"
                     >
-
                       <X className="w-4 h-4" />
-
                     </button>
 
                   </div>
@@ -459,13 +427,11 @@ const AccountPage = () => {
                 <div className="space-y-5">
 
                   <div className="pt-5 border-t border-[#EAE1D2]">
-
                     <div className="flex items-center gap-3">
 
-                      <User className="w-5 h-5 text-[#C49A52]" />
+                      <User className="w-5 h-5 text-[#C49A52] shrink-0" />
 
                       <div>
-
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[#7A6248]">
                           Full Name
                         </p>
@@ -473,22 +439,17 @@ const AccountPage = () => {
                         <p className="text-sm font-semibold text-[#123D2A] mt-1">
                           {currentUser.name}
                         </p>
-
                       </div>
 
                     </div>
-
                   </div>
 
-
                   <div>
+                    <div className="flex items-start gap-3">
 
-                    <div className="flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-[#C49A52] shrink-0 mt-0.5" />
 
-                      <Mail className="w-5 h-5 text-[#C49A52]" />
-
-                      <div>
-
+                      <div className="min-w-0">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[#7A6248]">
                           Email Address
                         </p>
@@ -496,69 +457,52 @@ const AccountPage = () => {
                         <p className="text-sm font-semibold text-[#123D2A] mt-1 break-all">
                           {currentUser.email}
                         </p>
-
                       </div>
 
                     </div>
-
                   </div>
 
-
                   <div>
-
                     <div className="flex items-center gap-3">
 
-                      <Phone className="w-5 h-5 text-[#C49A52]" />
+                      <Phone className="w-5 h-5 text-[#C49A52] shrink-0" />
 
                       <div>
-
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[#7A6248]">
                           Phone Number
                         </p>
 
                         <p className="text-sm font-semibold text-[#123D2A] mt-1">
-
                           {currentUser.phone ||
                             'No phone number added'}
-
                         </p>
-
                       </div>
 
                     </div>
-
                   </div>
 
-
                   <div>
-
                     <div className="flex items-start gap-3">
 
-                      <MapPin className="w-5 h-5 text-[#C49A52] mt-0.5" />
+                      <MapPin className="w-5 h-5 text-[#C49A52] mt-0.5 shrink-0" />
 
-                      <div>
-
+                      <div className="min-w-0">
                         <p className="text-[10px] font-bold uppercase tracking-wider text-[#7A6248]">
                           Delivery Address
                         </p>
 
-                        <p className="text-sm font-semibold text-[#123D2A] mt-1 leading-relaxed">
-
+                        <p className="text-sm font-semibold text-[#123D2A] mt-1 leading-relaxed break-words">
                           {fullAddress ||
                             'No delivery address saved'}
-
                         </p>
-
                       </div>
 
                     </div>
-
                   </div>
 
                 </div>
 
               )}
-
 
               {/* LOGOUT */}
 
@@ -568,11 +512,9 @@ const AccountPage = () => {
                   onClick={handleLogout}
                   className="w-full mt-7 py-3 bg-red-50 text-red-700 text-xs font-bold rounded-full hover:bg-red-100 flex items-center justify-center gap-2"
                 >
-
                   <LogOut className="w-4 h-4" />
 
                   LOG OUT
-
                 </button>
 
               )}
@@ -581,13 +523,11 @@ const AccountPage = () => {
 
           </div>
 
-
           {/* QUICK ACTIONS */}
 
           <div className="lg:col-span-7">
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-
 
               {/* ORDERS */}
 
@@ -595,33 +535,21 @@ const AccountPage = () => {
                 to="/orders"
                 className="bg-[#FFFDF8] p-7 rounded-3xl border border-[#EAE1D2] shadow-card hover:shadow-xl transition-all space-y-4 group"
               >
-
                 <div className="w-12 h-12 rounded-full bg-[#123D2A] text-[#C49A52] flex items-center justify-center">
-
                   <Package className="w-6 h-6" />
-
                 </div>
 
-
                 <div>
-
                   <h3 className="font-serif font-bold text-xl text-[#123D2A] group-hover:text-[#C49A52]">
-
                     My Orders
-
                   </h3>
 
-
                   <p className="text-xs text-[#7A6248] mt-2 leading-relaxed">
-
                     Track your orders, check delivery status and view order history.
-
                   </p>
-
                 </div>
 
               </Link>
-
 
               {/* WISHLIST */}
 
@@ -629,33 +557,21 @@ const AccountPage = () => {
                 to="/wishlist"
                 className="bg-[#FFFDF8] p-7 rounded-3xl border border-[#EAE1D2] shadow-card hover:shadow-xl transition-all space-y-4 group"
               >
-
                 <div className="w-12 h-12 rounded-full bg-[#123D2A] text-[#C49A52] flex items-center justify-center">
-
                   <Heart className="w-6 h-6" />
-
                 </div>
 
-
                 <div>
-
                   <h3 className="font-serif font-bold text-xl text-[#123D2A] group-hover:text-[#C49A52]">
-
                     My Wishlist
-
                   </h3>
 
-
                   <p className="text-xs text-[#7A6248] mt-2 leading-relaxed">
-
                     View your saved Ayurvedic products and add them to your cart anytime.
-
                   </p>
-
                 </div>
 
               </Link>
-
 
               {/* ADMIN */}
 
@@ -665,31 +581,20 @@ const AccountPage = () => {
                   href="http://localhost:5174/admin/dashboard"
                   className="col-span-1 sm:col-span-2 bg-[#123D2A] text-white p-7 rounded-3xl shadow-xl space-y-3 flex items-center justify-between"
                 >
-
                   <div>
-
                     <h3 className="font-serif font-bold text-xl text-white flex items-center gap-2">
-
                       <ShieldCheck className="w-5 h-5 text-[#C49A52]" />
 
                       Switch to Admin Panel
-
                     </h3>
 
-
                     <p className="text-xs text-emerald-100 mt-2">
-
                       Manage products, customers, orders and store operations.
-
                     </p>
-
                   </div>
 
-
                   <span className="px-4 py-2 bg-[#C49A52] text-[#0B2D1E] text-xs font-bold rounded-full whitespace-nowrap">
-
                     OPEN →
-
                   </span>
 
                 </a>
@@ -705,6 +610,7 @@ const AccountPage = () => {
       </main>
 
       <Footer />
+
     </div>
   );
 };
