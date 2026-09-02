@@ -3,24 +3,32 @@ const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
 const PasswordReset = require('../models/PasswordReset');
 const generateToken = require('../utils/generateToken');
+
 const {
   sendVerificationOTP,
   sendPasswordResetOTP,
 } = require('../services/emailService');
+
 const {
   successResponse,
   errorResponse,
 } = require('../utils/apiResponse');
 
-// Generate 6-digit OTP
+// ============================================================
+// GENERATE 6-DIGIT OTP
+// ============================================================
+
 const generateOTP = () => {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return Math.floor(
+    100000 + Math.random() * 900000
+  ).toString();
 };
 
 // ============================================================
 // REGISTER - SEND OTP
 // POST /api/auth/send-otp
 // ============================================================
+
 const sendRegistrationOTP = async (req, res, next) => {
   try {
     const { name, email, phone, password } = req.body;
@@ -61,7 +69,10 @@ const sendRegistrationOTP = async (req, res, next) => {
 
     const otp = generateOTP();
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
 
     const expiresAt = new Date(
       Date.now() + 5 * 60 * 1000
@@ -93,7 +104,11 @@ const sendRegistrationOTP = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.error('Send Registration OTP Error:', error);
+    console.error(
+      'Send Registration OTP Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -102,7 +117,12 @@ const sendRegistrationOTP = async (req, res, next) => {
 // REGISTER - VERIFY OTP
 // POST /api/auth/verify-otp
 // ============================================================
-const verifyRegistrationOTP = async (req, res, next) => {
+
+const verifyRegistrationOTP = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { email, otp } = req.body;
 
@@ -114,11 +134,14 @@ const verifyRegistrationOTP = async (req, res, next) => {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email
+      .toLowerCase()
+      .trim();
 
-    const verification = await EmailVerification.findOne({
-      email: normalizedEmail,
-    });
+    const verification =
+      await EmailVerification.findOne({
+        email: normalizedEmail,
+      });
 
     if (!verification) {
       return errorResponse(
@@ -140,7 +163,10 @@ const verifyRegistrationOTP = async (req, res, next) => {
       );
     }
 
-    if (verification.otp !== otp.toString().trim()) {
+    if (
+      verification.otp !==
+      otp.toString().trim()
+    ) {
       return errorResponse(
         res,
         400,
@@ -167,8 +193,10 @@ const verifyRegistrationOTP = async (req, res, next) => {
     const user = await User.create({
       name: verification.registrationData.name,
       email: normalizedEmail,
-      phone: verification.registrationData.phone || '',
-      password: verification.registrationData.password,
+      phone:
+        verification.registrationData.phone || '',
+      password:
+        verification.registrationData.password,
       role: 'user',
     });
 
@@ -196,7 +224,11 @@ const verifyRegistrationOTP = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.error('Verify Registration OTP Error:', error);
+    console.error(
+      'Verify Registration OTP Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -205,7 +237,12 @@ const verifyRegistrationOTP = async (req, res, next) => {
 // REGISTER - RESEND OTP
 // POST /api/auth/resend-otp
 // ============================================================
-const resendRegistrationOTP = async (req, res, next) => {
+
+const resendRegistrationOTP = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { email } = req.body;
 
@@ -217,11 +254,14 @@ const resendRegistrationOTP = async (req, res, next) => {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email
+      .toLowerCase()
+      .trim();
 
-    const verification = await EmailVerification.findOne({
-      email: normalizedEmail,
-    });
+    const verification =
+      await EmailVerification.findOne({
+        email: normalizedEmail,
+      });
 
     if (!verification) {
       return errorResponse(
@@ -256,7 +296,11 @@ const resendRegistrationOTP = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.error('Resend Registration OTP Error:', error);
+    console.error(
+      'Resend Registration OTP Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -265,7 +309,12 @@ const resendRegistrationOTP = async (req, res, next) => {
 // FORGOT PASSWORD - SEND OTP
 // POST /api/auth/forgot-password
 // ============================================================
-const forgotPassword = async (req, res, next) => {
+
+const forgotPassword = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { email } = req.body;
 
@@ -277,13 +326,14 @@ const forgotPassword = async (req, res, next) => {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email
+      .toLowerCase()
+      .trim();
 
     const user = await User.findOne({
       email: normalizedEmail,
     });
 
-    // Don't reveal whether an email exists
     if (!user) {
       return successResponse(
         res,
@@ -292,7 +342,6 @@ const forgotPassword = async (req, res, next) => {
       );
     }
 
-    // Remove previous reset requests
     await PasswordReset.deleteMany({
       email: normalizedEmail,
     });
@@ -324,7 +373,11 @@ const forgotPassword = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.error('Forgot Password Error:', error);
+    console.error(
+      'Forgot Password Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -333,7 +386,12 @@ const forgotPassword = async (req, res, next) => {
 // FORGOT PASSWORD - VERIFY OTP
 // POST /api/auth/verify-reset-otp
 // ============================================================
-const verifyResetOTP = async (req, res, next) => {
+
+const verifyResetOTP = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { email, otp } = req.body;
 
@@ -345,11 +403,14 @@ const verifyResetOTP = async (req, res, next) => {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email
+      .toLowerCase()
+      .trim();
 
-    const resetRequest = await PasswordReset.findOne({
-      email: normalizedEmail,
-    });
+    const resetRequest =
+      await PasswordReset.findOne({
+        email: normalizedEmail,
+      });
 
     if (!resetRequest) {
       return errorResponse(
@@ -371,7 +432,10 @@ const verifyResetOTP = async (req, res, next) => {
       );
     }
 
-    if (resetRequest.otp !== otp.toString().trim()) {
+    if (
+      resetRequest.otp !==
+      otp.toString().trim()
+    ) {
       return errorResponse(
         res,
         400,
@@ -388,7 +452,11 @@ const verifyResetOTP = async (req, res, next) => {
       }
     );
   } catch (error) {
-    console.error('Verify Reset OTP Error:', error);
+    console.error(
+      'Verify Reset OTP Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -397,7 +465,12 @@ const verifyResetOTP = async (req, res, next) => {
 // FORGOT PASSWORD - RESET PASSWORD
 // POST /api/auth/reset-password
 // ============================================================
-const resetPassword = async (req, res, next) => {
+
+const resetPassword = async (
+  req,
+  res,
+  next
+) => {
   try {
     const {
       email,
@@ -421,11 +494,14 @@ const resetPassword = async (req, res, next) => {
       );
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email
+      .toLowerCase()
+      .trim();
 
-    const resetRequest = await PasswordReset.findOne({
-      email: normalizedEmail,
-    });
+    const resetRequest =
+      await PasswordReset.findOne({
+        email: normalizedEmail,
+      });
 
     if (!resetRequest) {
       return errorResponse(
@@ -447,7 +523,10 @@ const resetPassword = async (req, res, next) => {
       );
     }
 
-    if (resetRequest.otp !== otp.toString().trim()) {
+    if (
+      resetRequest.otp !==
+      otp.toString().trim()
+    ) {
       return errorResponse(
         res,
         400,
@@ -471,12 +550,10 @@ const resetPassword = async (req, res, next) => {
       );
     }
 
-    // User schema pre-save hook will hash this password
     user.password = newPassword;
 
     await user.save();
 
-    // Delete OTP after successful password reset
     await PasswordReset.deleteOne({
       _id: resetRequest._id,
     });
@@ -487,7 +564,11 @@ const resetPassword = async (req, res, next) => {
       'Password reset successful. You can now login with your new password.'
     );
   } catch (error) {
-    console.error('Reset Password Error:', error);
+    console.error(
+      'Reset Password Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -496,7 +577,12 @@ const resetPassword = async (req, res, next) => {
 // LOGIN
 // POST /api/auth/login
 // ============================================================
-const loginUser = async (req, res, next) => {
+
+const loginUser = async (
+  req,
+  res,
+  next
+) => {
   try {
     const { email, password } = req.body;
 
@@ -551,6 +637,11 @@ const loginUser = async (req, res, next) => {
       }
     );
   } catch (error) {
+    console.error(
+      'Login Error:',
+      error
+    );
+
     next(error);
   }
 };
@@ -559,7 +650,12 @@ const loginUser = async (req, res, next) => {
 // GET CURRENT USER
 // GET /api/auth/me
 // ============================================================
-const getMe = async (req, res, next) => {
+
+const getMe = async (
+  req,
+  res,
+  next
+) => {
   try {
     const user = await User.findById(
       req.user._id
@@ -580,30 +676,25 @@ const getMe = async (req, res, next) => {
       user
     );
   } catch (error) {
+    console.error(
+      'Get Profile Error:',
+      error
+    );
+
     next(error);
   }
 };
 
 // ============================================================
-// EXPORTS
-// ============================================================
-module.exports = {
-  sendRegistrationOTP,
-  verifyRegistrationOTP,
-  resendRegistrationOTP,
-
-  forgotPassword,
-  verifyResetOTP,
-  resetPassword,
-
-  loginUser,
-  getMe,
-};
-// ============================================================
 // UPDATE CURRENT USER PROFILE
 // PUT /api/auth/profile
 // ============================================================
-const updateProfile = async (req, res, next) => {
+
+const updateProfile = async (
+  req,
+  res,
+  next
+) => {
   try {
     const {
       name,
@@ -611,7 +702,9 @@ const updateProfile = async (req, res, next) => {
       address,
     } = req.body;
 
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(
+      req.user._id
+    );
 
     if (!user) {
       return errorResponse(
@@ -621,39 +714,51 @@ const updateProfile = async (req, res, next) => {
       );
     }
 
-    // Update name
-    if (name !== undefined && name.trim()) {
+    // UPDATE NAME
+    if (
+      name !== undefined &&
+      typeof name === 'string' &&
+      name.trim()
+    ) {
       user.name = name.trim();
     }
 
-    // Update phone
-    if (phone !== undefined) {
+    // UPDATE PHONE
+    if (
+      phone !== undefined &&
+      typeof phone === 'string'
+    ) {
       user.phone = phone.trim();
     }
 
-    // Update address
+    // UPDATE ADDRESS
     if (address) {
+      const currentAddress =
+        user.address || {};
+
       user.address = {
         street:
           address.street !== undefined
-            ? address.street.trim()
-            : user.address.street,
+            ? String(address.street).trim()
+            : currentAddress.street || '',
 
         city:
           address.city !== undefined
-            ? address.city.trim()
-            : user.address.city,
+            ? String(address.city).trim()
+            : currentAddress.city || '',
 
         state:
           address.state !== undefined
-            ? address.state.trim()
-            : user.address.state,
+            ? String(address.state).trim()
+            : currentAddress.state || '',
 
         pincode:
           address.pincode !== undefined
-            ? address.pincode.trim()
-            : user.address.pincode,
+            ? String(address.pincode).trim()
+            : currentAddress.pincode || '',
       };
+
+      user.markModified('address');
     }
 
     await user.save();
@@ -672,6 +777,29 @@ const updateProfile = async (req, res, next) => {
       }
     );
   } catch (error) {
+    console.error(
+      'Update Profile Error:',
+      error
+    );
+
     next(error);
   }
+};
+
+// ============================================================
+// EXPORTS
+// ============================================================
+
+module.exports = {
+  sendRegistrationOTP,
+  verifyRegistrationOTP,
+  resendRegistrationOTP,
+
+  forgotPassword,
+  verifyResetOTP,
+  resetPassword,
+
+  loginUser,
+  getMe,
+  updateProfile,
 };
