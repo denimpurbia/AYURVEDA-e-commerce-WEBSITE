@@ -64,6 +64,7 @@ const allowedOrigins = [
   // Local development
   'http://localhost:5173',
   'http://localhost:5174',
+  'http://localhost:5000',
 
   // Production Client
   'https://ayurveda-e-commerce-website.vercel.app',
@@ -115,8 +116,17 @@ const isAllowedVercelPreview = (origin) => {
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Postman / server-to-server requests
+    // Allow requests with no Origin header
+    // Example: Postman, server-to-server requests
     if (!origin) {
+      return callback(null, true);
+    }
+
+    // Allow Swagger running from the same backend
+    if (
+      origin === 'http://localhost:5000' ||
+      origin === 'http://127.0.0.1:5000'
+    ) {
       return callback(null, true);
     }
 
@@ -133,7 +143,7 @@ const corsOptions = {
     console.warn(`CORS blocked origin: ${origin}`);
 
     return callback(
-      new Error('Not allowed by CORS')
+      new Error(`Not allowed by CORS: ${origin}`)
     );
   },
 
@@ -271,18 +281,10 @@ app.use('/api/wishlist', wishlistRoutes);
 // Orders
 app.use('/api/orders', orderRoutes);
 
-// ==========================================
-// GENERAL WEBSITE REVIEWS
-// Existing review system - DO NOT REMOVE
-// ==========================================
-
+// General Website Reviews
 app.use('/api/reviews', reviewRoutes);
 
-// ==========================================
-// PRODUCT REVIEWS
-// New separate product review system
-// ==========================================
-
+// Product Reviews
 app.use(
   '/api/product-reviews',
   productReviewRoutes
