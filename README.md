@@ -488,17 +488,6 @@ Normal startup:
 npm start
 ```
 
----
-
-# 🌱 Database Seeding
-
-The backend includes a seed command:
-
-```bash
-cd server
-npm run seed
-```
-
 The exact seeded data depends on the implementation in the `seed/` directory.
 
 ---
